@@ -36,7 +36,7 @@ export default function Sidebar() {
       )}
 
       {/* Maintenance - admin + staff */}
-      {(role === "admin" || role === "staff") && (
+      {(role === "admin" || role === "staff" || role === "resident") && (
         <button
           onClick={() => navigate("/maintenance")}
           className="mb-3 p-2 rounded bg-neutral-800 hover:bg-neutral-700"

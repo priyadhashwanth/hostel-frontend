@@ -12,25 +12,36 @@ export default function Maintenance() {
 
   // Create
   const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
+  const [issue, setIssue] = useState("");
   const [priority, setPriority] = useState("low");
 
   // Assign
   const [selectedStaff, setSelectedStaff] = useState("");
+
+  // ✏️ EDIT STATE
+const [editId, setEditId] = useState(null);
 
   // 🔄 Fetch Data
   const fetchData = async () => {
   try {
     let res;
 
-    if (role === "resident") {
+    const role =getUser()?.role;
+
+    if (role?.toLowerCase()==="resident") {
       res = await API.get("/maintenance/my");
     } else {
       res = await API.get("/maintenance");
+      
+      console.log("REQUESTS:",res.data);
+
+      // 👇 ADD THIS (VERY IMPORTANT)
+      const usersRes = await API.get("/users");
+      console.log("USERS:", usersRes.data);
+      setUsers(usersRes.data);
     }
 
-    console.log("DATA:", res.data);
-
+    
     setRequests(res.data);
 
   } catch (err) {
@@ -47,13 +58,14 @@ export default function Maintenance() {
     try {
       await API.post("/maintenance", {
         title,
-        description,
+        issue,
         priority
       });
 
       alert("Request created ✅");
       setTitle("");
-      setDescription("");
+      setIssue("");
+      setPriority("low");
       fetchData();
 
     } catch (err) {
@@ -63,9 +75,16 @@ export default function Maintenance() {
 
   // 🗑️ DELETE
   const deleteRequest = async (id) => {
+  try {
     await API.delete(`/maintenance/${id}`);
+    alert("Deleted ✅");
     fetchData();
-  };
+  } catch (err) {
+    console.log(err.response?.data);
+    alert(err.response?.data?.message || "Delete failed ❌");
+  }
+};
+  
 
   // 👨‍🔧 ASSIGN STAFF
   const assignTask = async (id) => {
@@ -74,7 +93,7 @@ export default function Maintenance() {
     });
 
     alert("Assigned ✅");
-    fetchData();
+     await fetchData();
   };
 
   // 🔄 UPDATE STATUS
@@ -82,6 +101,29 @@ export default function Maintenance() {
     await API.put(`/maintenance/status/${id}`, { status });
     fetchData();
   };
+
+  // ✏️ UPDATE REQUEST
+const updateRequest = async () => {
+  try {
+    await API.put(`/maintenance/${editId}`, {
+      title,
+      issue,
+      priority
+    });
+
+    alert("Updated ✅");
+
+    setEditId(null);
+    setTitle("");
+    setIssue("");
+    setPriority("low");
+
+    fetchData();
+
+  } catch (err) {
+    alert("Error updating request");
+  }
+};
 
   return (
     <Layout>
@@ -100,13 +142,14 @@ export default function Maintenance() {
           />
 
           <input
-            placeholder="Description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
+            placeholder="issue Description"
+            value={issue}
+            onChange={(e) => setIssue(e.target.value)}
             className="border p-2 mr-2"
           />
 
           <select
+            value={priority}
             onChange={(e) => setPriority(e.target.value)}
             className="border p-2 mr-2"
           >
@@ -116,10 +159,10 @@ export default function Maintenance() {
           </select>
 
           <button
-            onClick={createRequest}
-            className="bg-green-500 text-white px-4"
-          >
-            Submit
+           onClick={editId ? updateRequest : createRequest}
+  className="bg-green-500 text-white px-4"
+>
+  {editId ? "Update" : "Submit"}
           </button>
         </div>
       )}
@@ -130,8 +173,8 @@ export default function Maintenance() {
         {requests.map((req) => (
           <div key={req._id} className="bg-white p-5 rounded shadow">
 
-            <h2 className="font-bold">{req.title}</h2>
-            <p>{req.description}</p>
+            <h2 className="font-bold">{req.title || "No Title"}</h2>
+<p>{req.issue || "No Issue Description"}</p>
 
             <p className="mt-2">
               Priority: <b>{req.priority}</b>
@@ -140,28 +183,31 @@ export default function Maintenance() {
             <p>Status: {req.status}</p>
 
             <p>
-              Assigned To: {req.assignedTo?.name || "Not Assigned"}
-            </p>
+              
+  Assigned To: {req.assignedTo?.name || "Not Assigned"}
+</p>
 
-            {/* ADMIN CONTROLS */}
+
+            {/* ADMIN / STAFF */}
             {(role === "admin" || role === "staff") && (
               <>
                 {/* Assign */}
                 {role === "admin" && (
                   <div className="mt-2">
                     <select
-                      onChange={(e) => setSelectedStaff(e.target.value)}
-                      className="border p-1"
-                    >
-                      <option>Select Staff</option>
-                      {users
-                        .filter(u => u.role === "staff")
-                        .map(u => (
-                          <option key={u._id} value={u._id}>
-                            {u.name}
-                          </option>
-                        ))}
-                    </select>
+  onChange={(e) => setSelectedStaff(e.target.value)}
+  className="border p-2"
+>
+  <option value="">Select Staff</option>
+
+  {users
+    .filter(u => u.role?.toLowerCase() === "staff") // 👈 HERE
+    .map(u => (
+      <option key={u._id} value={u._id}>
+        {u.name}
+      </option>
+    ))}
+</select>
 
                     <button
                       onClick={() => assignTask(req._id)}
@@ -189,20 +235,48 @@ export default function Maintenance() {
                   </button>
                 </div>
 
-                {/* Delete */}
+                <button
+        onClick={() => deleteRequest(req._id)}
+        className="bg-red-500 text-white px-2 mt-2"
+      >
+        Delete
+      </button>
+    </>
+  )}
+
+                {/* 👨‍🎓 RESIDENT CONTROLS */}
+{role === "resident" && (
+  <div className="mt-2">
+
+    {/* EDIT (only if pending) */}
+    {req.status === "pending" && (
+      <button
+        onClick={() => {
+          setEditId(req._id);
+          setTitle(req.title);
+          setIssue(req.issue);
+          setPriority(req.priority);
+        }}
+        className="bg-blue-500 text-white px-2 mr-2"
+      >
+        Edit
+      </button>
+    )}
+    
+
+                    {/* Delete */}
                 <button
                   onClick={() => deleteRequest(req._id)}
                   className="bg-red-500 text-white px-2 mt-2"
                 >
                   Delete
                 </button>
-              </>
-            )}
-
-          </div>
+                </div>
+)}
+</div>
         ))}
-
-      </div>
+        </div>
+                
     </Layout>
   );
 }

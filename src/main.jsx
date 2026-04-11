@@ -43,7 +43,7 @@ const router = createBrowserRouter([
   {
     path: "/maintenance",
     element: (
-      <PrivateRoute role="staff">
+      <PrivateRoute >
         <Maintenance />
       </PrivateRoute>
     )
