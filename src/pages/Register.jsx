@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../services/api";
+import  {toast} from "react-toastify";
 
 export default function Register() {
   const [name, setName] = useState("");
@@ -16,13 +17,15 @@ export default function Register() {
         password
       });
 
-      alert("Registered successfully");
+      toast.success("Registered successfully");
 
       // go to login
-      navigate("/");
+      serTimeout(()=>{
+        navigate("/");
+      },1000);
 
     } catch (error) {
-      alert(error.response?.data?.message || "Error");
+      toast.error(error.response?.data?.message || "Error");
     }
   };
 

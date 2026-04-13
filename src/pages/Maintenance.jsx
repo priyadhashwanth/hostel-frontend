@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import API from "../services/api";
 import Layout from "../components/Layout";
 import { getUser } from "../utils/auth";
+import {toast} from "react-toastify";
 
 export default function Maintenance() {
   const user = getUser();
@@ -45,6 +46,7 @@ const [editId, setEditId] = useState(null);
     setRequests(res.data);
 
   } catch (err) {
+    toast.error("Failed to load data");
     console.log(err);
   }
 };
@@ -62,45 +64,84 @@ const [editId, setEditId] = useState(null);
         priority
       });
 
-      alert("Request created ✅");
+      toast.success("Request created ✅");
+
       setTitle("");
       setIssue("");
       setPriority("low");
+
       fetchData();
 
     } catch (err) {
-      alert("Error creating request");
+      toast.error(err.response?.data?.message || "Creation failed");
     }
   };
 
   // 🗑️ DELETE
-  const deleteRequest = async (id) => {
-  try {
-    await API.delete(`/maintenance/${id}`);
-    alert("Deleted ✅");
-    fetchData();
-  } catch (err) {
-    console.log(err.response?.data);
-    alert(err.response?.data?.message || "Delete failed ❌");
-  }
+  const deleteRequest = (id) => {
+  toast.info(
+    <div>
+      <p>Are you sure you want to delete this request?</p>
+
+      <button
+        onClick={async () => {
+          try {
+            await API.delete(`/maintenance/${id}`);
+            toast.success("Deleted successfully ✅");
+            fetchData();
+            toast.dismiss(); // close confirm toast
+          } catch (err) {
+            console.log(err.response?.data);
+            toast.error(err.response?.data?.message || "Delete failed ❌");
+          }
+        }}
+        style={{ marginRight: "10px" }}
+      >
+        Yes
+      </button>
+
+      <button onClick={() => toast.dismiss()}>
+        Cancel
+      </button>
+    </div>,
+    { autoClose: false }
+  );
 };
   
 
   // 👨‍🔧 ASSIGN STAFF
   const assignTask = async (id) => {
+  try {
+    if (!selectedStaff) {
+      return toast.warning("Select a staff member ⚠️");
+    }
+
     await API.put(`/maintenance/assign/${id}`, {
       staffId: selectedStaff
     });
 
-    alert("Assigned ✅");
-     await fetchData();
-  };
+    toast.success("Task assigned 👨‍🔧");
 
-  // 🔄 UPDATE STATUS
-  const updateStatus = async (id, status) => {
-    await API.put(`/maintenance/status/${id}`, { status });
     fetchData();
-  };
+
+  } catch (err) {
+    toast.error(err.response?.data?.message || "Assign failed ❌");
+  }
+};
+  // 🔄 UPDATE STATUS
+  
+  const updateStatus = async (id, status) => {
+  try {
+    await API.put(`/maintenance/status/${id}`, { status });
+
+    toast.success(`Status updated to ${status}` );
+
+    fetchData();
+
+  } catch (err) {
+    toast.error(err.response?.data?.message || "Status update failed ❌");
+  }
+};
 
   // ✏️ UPDATE REQUEST
 const updateRequest = async () => {
@@ -111,7 +152,7 @@ const updateRequest = async () => {
       priority
     });
 
-    alert("Updated ✅");
+    toast.success(" Request Updated ✅");
 
     setEditId(null);
     setTitle("");
@@ -121,9 +162,9 @@ const updateRequest = async () => {
     fetchData();
 
   } catch (err) {
-    alert("Error updating request");
-  }
+    toast.error(err.response?.data?.message || "Update failed ❌");
 };
+}
 
   return (
     <Layout>

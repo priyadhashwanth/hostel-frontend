@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../services/api";
+import {toast} from "react-toastify";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -19,15 +20,18 @@ export default function Login() {
 
       // store user
 localStorage.setItem("user", JSON.stringify(res.data.user));
+   
+    //toast instead of alert
 
-
-      alert("Login successful");
+      toast.success("Login successful");
 
       // redirect
-      navigate("/dashboard");
+      setTimeout(()=>{
+    navigate("/dashboard");
+      },1000);
 
     } catch (error) {
-      alert(error.response?.data?.message || "Login failed");
+      toast.error(error.response?.data?.message || "Login failed");
     }
   };
 

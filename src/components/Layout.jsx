@@ -1,4 +1,5 @@
 import Sidebar from "./Sidebar";
+import  {getUser,getRole} from "../utils/auth";
 
 export default function Layout({ children }) {
   return (

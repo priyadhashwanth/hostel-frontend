@@ -17,6 +17,16 @@ export default function Sidebar() {
 
       <h2 className="text-2xl font-bold mb-6">Hostel</h2>
 
+      {/* ✅ ADD HERE 👇 */}
+        <div className="bg-gray-800 p-3 rounded mb-6 text-white">
+          <p className="font-semibold">
+            {user?.name}
+          </p>
+          <p className="text-xs text-gray-400 capitalize">
+            {role}
+          </p>
+        </div>
+
       {/* Dashboard */}
       <button
         onClick={() => navigate("/dashboard")}
@@ -25,8 +35,8 @@ export default function Sidebar() {
         Dashboard
       </button>
 
-      {/* Rooms - admin */}
-      {role === "admin" && (
+      {/* Rooms - admin and resident and staff*/}
+      { ["admin","staff","resident"].includes(role) && (
         <button
           onClick={() => navigate("/rooms")}
           className="mb-3 p-2 rounded bg-neutral-800 hover:bg-neutral-700"
@@ -45,8 +55,8 @@ export default function Sidebar() {
         </button>
       )}
 
-      {/* Billing - resident */}
-      {role === "resident" && (
+      {/* Billing - resident+ admin */}
+      {["admin", "resident"].includes(role?.toLowerCase()) && (
         <button
           onClick={() => navigate("/billing")}
           className="mb-3 p-2 rounded bg-neutral-800 hover:bg-neutral-700"
