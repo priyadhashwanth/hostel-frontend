@@ -1,15 +1,20 @@
 import { useNavigate } from "react-router-dom";
-import { getUser, logout as doLogout } from "../utils/auth";
+import { logout } from "../utils/auth";
+import {toast} from "react-toastify";
 
 export default function Sidebar() {
   const navigate = useNavigate();
 
-  const user = getUser();
+  const user = JSON.parse(localStorage.getItem("user"))
   const role = (user?.role || "").toLowerCase();
 
-  const logout = () => {
-    doLogout();
-    navigate("/login");
+  const handleLogout = () => {
+    Logout();
+
+    toast.success("Logged out successfully");
+    setTimeout(()=>{
+    window.location.href="/login";
+    },1000);
   };
 
   return (
@@ -85,7 +90,7 @@ export default function Sidebar() {
 
       {/* Logout */}
       <button
-        onClick={logout}
+        onClick={handleLogout}
         className="mt-auto p-2 rounded bg-red-500 hover:bg-red-600"
       >
         Logout

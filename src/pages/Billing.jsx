@@ -18,14 +18,17 @@ export default function Billing() {
   const [discount, setDiscount] = useState("");
   const [lateFee, setLateFee] = useState("");
 
-  // ✅ FETCH DATA
+  // ✅ INSTALLMENT STATE
+  const [amount, setAmount] = useState("");
+
+  // 🔄 FETCH DATA
   const fetchData = async () => {
     try {
       if (role === "resident") {
-        const res = await API.get("/bills/my"); // ✅ correct
+        const res = await API.get("/bills/my");
         setBills(res.data);
       } else {
-        const billsRes = await API.get("/bills"); // admin
+        const billsRes = await API.get("/bills");
         const usersRes = await API.get("/users");
 
         setBills(billsRes.data);
@@ -33,10 +36,7 @@ export default function Billing() {
       }
     } catch (err) {
       console.log(err);
-
-      if (role === "resident") {
-        setBills([]);
-      }
+      if (role === "resident") setBills([]);
     }
   };
 
@@ -44,7 +44,7 @@ export default function Billing() {
     fetchData();
   }, []);
 
-  // ➕ CREATE BILL (ADMIN)
+  // ➕ CREATE BILL
   const createBill = async () => {
     try {
       await API.post("/bills", {
@@ -58,7 +58,6 @@ export default function Billing() {
 
       toast.success("Bill created 💰");
 
-      // reset
       setUserId("");
       setRent("");
       setUtilities("");
@@ -72,34 +71,65 @@ export default function Billing() {
     }
   };
 
-  // 💳 PAY BILL (RESIDENT)
+  // 💳 PAY FULL
   const payBill = async (id) => {
-  try {
-    const res = await API.put(`/bills/pay/${id}`,{});
-
-    // ✅ only show success if backend responds
-    
-      toast.success(res.data.message || "Payment successful 💳");
-    
-
-    fetchData();
-  } catch (err) {
-    console.log(err);
-    toast.error(err.response?.data?.message || "Payment failed ❌");
-  }
-};
-
-  // 🗑 DELETE BILL (ADMIN)
-  const deleteBill = async (id) => {
-    if (!window.confirm("Delete this bill?")) return;
-
     try {
-      await API.delete(`/bills/${id}`);
-      toast.success("Bill deleted 🗑️");
+      await API.put(`/bills/pay/${id}`);
+      toast.success("Payment successful 💰");
       fetchData();
     } catch (err) {
-      toast.error("Delete failed ❌");
+      toast.error(err.response?.data?.message || "Payment failed ❌");
     }
+  };
+
+  // 💰 PAY INSTALLMENT
+  const payInstallment = async (id) => {
+    try {
+      await API.put(`/bills/installment/${id}`, { amount });
+
+      toast.success("Partial payment done 💰");
+      setAmount("");
+      fetchData();
+    } catch (err) {
+      toast.error(err.response?.data?.message);
+    }
+  };
+
+  // 🗑 DELETE BILL
+  const deleteBill = (id) => {
+    toast(
+      ({ closeToast }) => (
+        <div>
+          <p className="mb-2 font-semibold">Delete this bill?</p>
+
+          <div className="flex gap-2">
+            <button
+              onClick={async () => {
+                try {
+                  await API.delete(`/bills/${id}`);
+                  toast.success("Bill deleted 🗑️");
+                  fetchData();
+                } catch (err) {
+                  toast.error("Delete failed ❌");
+                }
+                closeToast();
+              }}
+              className="bg-red-500 text-white px-3 py-1 rounded"
+            >
+              Yes
+            </button>
+
+            <button
+              onClick={closeToast}
+              className="bg-gray-300 px-3 py-1 rounded"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      ),
+      { autoClose: false }
+    );
   };
 
   return (
@@ -108,12 +138,7 @@ export default function Billing() {
         {role === "resident" ? "My Bills" : "Billing Management"}
       </h1>
 
-      {/* NO DATA */}
-      {bills.length === 0 && role === "resident" && (
-        <p className="text-gray-500">No bills available</p>
-      )}
-
-      {/* 🔴 ADMIN CREATE */}
+      {/* ADMIN CREATE */}
       {role === "admin" && (
         <div className="bg-white p-6 rounded-xl shadow mb-6">
           <h2 className="text-xl font-semibold mb-4">Create Bill</h2>
@@ -132,40 +157,11 @@ export default function Billing() {
               ))}
             </select>
 
-            <input
-              placeholder="Rent"
-              value={rent}
-              onChange={(e) => setRent(e.target.value)}
-              className="border p-3 rounded"
-            />
-
-            <input
-              placeholder="Utilities"
-              value={utilities}
-              onChange={(e) => setUtilities(e.target.value)}
-              className="border p-3 rounded"
-            />
-
-            <input
-              placeholder="Extra Charges"
-              value={extraCharges}
-              onChange={(e) => setExtraCharges(e.target.value)}
-              className="border p-3 rounded"
-            />
-
-            <input
-              placeholder="Discount"
-              value={discount}
-              onChange={(e) => setDiscount(e.target.value)}
-              className="border p-3 rounded"
-            />
-
-            <input
-              placeholder="Late Fee"
-              value={lateFee}
-              onChange={(e) => setLateFee(e.target.value)}
-              className="border p-3 rounded"
-            />
+            <input placeholder="Rent" value={rent} onChange={(e) => setRent(e.target.value)} className="border p-3 rounded" />
+            <input placeholder="Utilities" value={utilities} onChange={(e) => setUtilities(e.target.value)} className="border p-3 rounded" />
+            <input placeholder="Extra Charges" value={extraCharges} onChange={(e) => setExtraCharges(e.target.value)} className="border p-3 rounded" />
+            <input placeholder="Discount" value={discount} onChange={(e) => setDiscount(e.target.value)} className="border p-3 rounded" />
+            <input placeholder="Late Fee" value={lateFee} onChange={(e) => setLateFee(e.target.value)} className="border p-3 rounded" />
           </div>
 
           <button
@@ -177,7 +173,7 @@ export default function Billing() {
         </div>
       )}
 
-      {/* 🧾 BILL GRID */}
+      {/* BILL GRID */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {bills.map((bill) => {
           const total =
@@ -187,11 +183,14 @@ export default function Billing() {
             (bill.discount || 0) +
             (bill.lateFee || 0);
 
+          const paidAmount =
+            bill.paymentHistory?.reduce((sum, p) => sum + p.amount, 0) || 0;
+
+          const remainingAmount = total - paidAmount;
+
           return (
             <div key={bill._id} className="bg-white p-5 rounded-xl shadow">
-              <h2 className="text-lg font-bold">
-                {bill.user?.name || "User"}
-              </h2>
+              <h2 className="text-lg font-bold">{bill.user?.name}</h2>
 
               <p>Rent: ₹{bill.rent}</p>
               <p>Utilities: ₹{bill.utilities}</p>
@@ -199,28 +198,61 @@ export default function Billing() {
               <p>Discount: ₹{bill.discount}</p>
               <p>Late Fee: ₹{bill.lateFee}</p>
 
-              <p className="font-semibold mt-2">
-                Total: ₹{total}
-              </p>
+              <p className="font-semibold mt-2">Total: ₹{total}</p>
+              <p>Remaining: ₹{remainingAmount}</p>
 
-              <p
-                className={`mt-2 ${
-                  bill.status === "paid"
-                    ? "text-green-500"
-                    : "text-red-500"
-                }`}
-              >
+              <p className={`mt-2 ${bill.status === "paid" ? "text-green-500" : "text-red-500"}`}>
                 {bill.status}
               </p>
 
-              {/* RESIDENT */}
+              {/* PAYMENT HISTORY */}
+              <div className="mt-3">
+                <h3 className="font-semibold">Payment History</h3>
+
+                {bill.paymentHistory?.length === 0 ? (
+                  <p className="text-gray-400">No payments yet</p>
+                ) : (
+                  bill.paymentHistory.map((p, i) => (
+                    <div key={i} className="bg-gray-100 p-2 mt-2 rounded">
+                      <p>₹{p.amount}</p>
+                      <p className="text-sm text-gray-500">
+                        {new Date(p.date).toLocaleString()}
+                      </p>
+                      <p className="text-xs text-blue-500">
+                        {p.transactionId}
+                      </p>
+                    </div>
+                  ))
+                )}
+              </div>
+
+              {/* RESIDENT ACTIONS */}
               {role === "resident" && bill.status !== "paid" && (
-                <button
-                  onClick={() => payBill(bill._id)}
-                  className="bg-blue-500 text-white px-4 py-1 mt-2 rounded"
-                >
-                  Pay
-                </button>
+                <>
+                  <input
+                    type="number"
+                    placeholder="Enter amount"
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                    className="border p-2 mt-2 rounded w-full"
+                  />
+
+                  <div className="flex gap-2 mt-2">
+                    <button
+                      onClick={() => payBill(bill._id)}
+                      className="bg-blue-500 text-white px-4 py-1 rounded"
+                    >
+                      Pay Full
+                    </button>
+
+                    <button
+                      onClick={() => payInstallment(bill._id)}
+                      className="bg-green-500 text-white px-4 py-1 rounded"
+                    >
+                      Pay Partial
+                    </button>
+                  </div>
+                </>
               )}
 
               {/* ADMIN */}

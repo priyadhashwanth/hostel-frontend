@@ -39,7 +39,7 @@ export default function Rooms() {
         
         const usersRes = await API.get("/users");
 
-        setRooms(Res.data);
+        setRooms(res.data);
         setUsers(usersRes.data);
       }
     } catch (err) {
