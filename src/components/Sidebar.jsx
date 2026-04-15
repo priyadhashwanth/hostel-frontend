@@ -70,6 +70,15 @@ export default function Sidebar() {
         </button>
       )}
 
+      {/*reports*/}
+
+      <button 
+      onClick={() => navigate("/reports")}
+         className="mb-3 p-2 rounded bg-neutral-800 hover:bg-neutral-700"
+         >
+  Reports
+</button>
+
       {/* Notifications */}
       <button
         onClick={() => navigate("/notifications")}
@@ -77,6 +86,8 @@ export default function Sidebar() {
       >
         Notifications
       </button>
+
+      
 
       {/* Manage Users - admin */}
       {role === "admin" && (

@@ -5,6 +5,7 @@ import Register from "./pages/Register";
  import Rooms from "./pages/Rooms";
 import Maintenance from "./pages/Maintenance";
 import Billing from "./pages/Billing";
+import Reports from "./pages/Reports";
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
         <Route path="/rooms" element={<Rooms />} />
           <Route path="/maintenance" element={<Maintenance/>} />
           <Route path="/billing" element={<Billing />} />
+          <Route path="/reports" element={<Reports />} /> 
 
       </Routes>
     </BrowserRouter>
