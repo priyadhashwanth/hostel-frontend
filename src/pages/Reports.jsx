@@ -12,10 +12,16 @@ import {
   PieChart,
   Pie,
   Cell,
+  LineChart,
+  Line,
+  CartesianGrid,
+  ResponsiveContainer
 } from "recharts";
+
 
 export default function Reports() {
   const [report, setReport] = useState(null);
+  const[monthlyData,setMonthlyData]=useState([]);
 
   // ✅ Fetch report
   useEffect(() => {
@@ -33,6 +39,21 @@ export default function Reports() {
 
     fetchReport();
   }, []);
+
+  //monthly revenue
+
+  useEffect(() => {
+  const fetchMonthly = async () => {
+    try {
+      const res = await API.get("/reports/monthly-revenue");
+      setMonthlyData(res.data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  fetchMonthly();
+}, []);
 
   // ✅ Loading state
   if (!report) {
@@ -99,6 +120,31 @@ export default function Reports() {
 </BarChart>
 
         </div>
+
+        {/*monthly revenue*/}
+
+        <div className="bg-white p-6 rounded shadow">
+  <h2 className="text-lg font-semibold mb-4">
+    Monthly Revenue 📈
+  </h2>
+
+  <ResponsiveContainer width="100%" height={300}>
+    <LineChart data={monthlyData}
+    margin={{ top: 10, right: 30, left: 40, bottom: 5 }}
+  >
+      <CartesianGrid strokeDasharray="3 3" />
+      <XAxis dataKey="month" />
+      <YAxis  tickFormatter={(v)=>`₹${v/1000}k`}/>
+      <Tooltip formatter={(value) => `₹${value}`} />
+      <Line
+        type="monotone"
+        dataKey="revenue"
+        stroke="#3b82f6"
+        strokeWidth={3}
+      />
+    </LineChart>
+  </ResponsiveContainer>
+</div>
 
         {/* ✅ Occupancy */}
         <div className="bg-white p-6 rounded shadow">

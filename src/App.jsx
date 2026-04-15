@@ -6,6 +6,7 @@ import Register from "./pages/Register";
 import Maintenance from "./pages/Maintenance";
 import Billing from "./pages/Billing";
 import Reports from "./pages/Reports";
+import Notifications from "./pages/Notifications"; 
 
 function App() {
   return (
@@ -19,6 +20,8 @@ function App() {
           <Route path="/maintenance" element={<Maintenance/>} />
           <Route path="/billing" element={<Billing />} />
           <Route path="/reports" element={<Reports />} /> 
+           <Route path="/notifications" element={<Notifications />} /> 
+
 
       </Routes>
     </BrowserRouter>

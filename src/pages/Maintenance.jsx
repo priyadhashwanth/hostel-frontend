@@ -132,13 +132,14 @@ const [editId, setEditId] = useState(null);
   
   const updateStatus = async (id, status) => {
   try {
-    await API.put(`/maintenance/status/${id}`, { status });
+    await API.put(`/maintenance/status/${id}`, { status});
 
     toast.success(`Status updated to ${status}` );
 
     fetchData();
 
   } catch (err) {
+    console.error(err);
     toast.error(err.response?.data?.message || "Status update failed ❌");
   }
 };
