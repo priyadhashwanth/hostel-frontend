@@ -9,7 +9,7 @@ export default function Users() {
   const fetchUsers = async () => {
     const res = await API.get("/users");
     setUsers(res.data);
-  };
+  }
 
   const updateRole = async (id, role) => {
     await API.put(`/users/${id}`, { role });

@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
  import Dashboard from "./pages/Dashboard";
@@ -6,13 +7,15 @@ import Register from "./pages/Register";
 import Maintenance from "./pages/Maintenance";
 import Billing from "./pages/Billing";
 import Reports from "./pages/Reports";
-import Notifications from "./pages/Notifications"; 
+import Notifications from "./pages/Notifications";
+import Residents from "./pages/Residents";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
         
+        <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/dashboard" element={<Dashboard />} />
@@ -21,6 +24,7 @@ function App() {
           <Route path="/billing" element={<Billing />} />
           <Route path="/reports" element={<Reports />} /> 
            <Route path="/notifications" element={<Notifications />} /> 
+           <Route path="/residents" element={<Residents/>} />
 
 
       </Routes>

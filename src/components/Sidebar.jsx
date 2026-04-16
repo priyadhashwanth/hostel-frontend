@@ -8,14 +8,22 @@ export default function Sidebar() {
   const user = JSON.parse(localStorage.getItem("user"))
   const role = (user?.role || "").toLowerCase();
 
-  const handleLogout = () => {
-    Logout();
+  const handleLogout = async () => {
+  try {
+     // 🔥 IMPORTANT
+
+    logout(); // clear localStorage
 
     toast.success("Logged out successfully");
-    setTimeout(()=>{
-    window.location.href="/login";
-    },1000);
-  };
+
+    setTimeout(() => {
+      window.location.href = "/login";
+    }, 1000);
+
+  } catch (error) {
+    toast.error("Logout failed");
+  }
+};
 
   return (
     <div className="w-56 h-screen bg-neutral-900 text-white flex flex-col p-5 fixed">
@@ -85,6 +93,14 @@ export default function Sidebar() {
         className="mb-3 p-2 rounded bg-neutral-800 hover:bg-neutral-700"
       >
         Notifications
+      </button>
+
+      {/*residents */}
+      <button
+        onClick={() => navigate("/residents")}
+        className="mb-3 p-2 rounded bg-neutral-800 hover:bg-neutral-700"
+      >
+        Residents
       </button>
 
       
