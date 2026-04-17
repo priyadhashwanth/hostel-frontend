@@ -80,12 +80,15 @@ export default function Sidebar() {
 
       {/*reports*/}
 
+      {role==="admin" &&(
+
       <button 
       onClick={() => navigate("/reports")}
          className="mb-3 p-2 rounded bg-neutral-800 hover:bg-neutral-700"
          >
   Reports
 </button>
+      )}
 
       {/* Notifications */}
       <button
@@ -102,18 +105,6 @@ export default function Sidebar() {
       >
         Residents
       </button>
-
-      
-
-      {/* Manage Users - admin */}
-      {role === "admin" && (
-        <button
-          onClick={() => navigate("/users")}
-          className="mb-3 p-2 rounded bg-neutral-800 hover:bg-neutral-700"
-        >
-          Manage Users
-        </button>
-      )}
 
       {/* Logout */}
       <button

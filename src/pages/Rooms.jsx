@@ -64,7 +64,10 @@ export default function Rooms() {
       toast.success("Room Created ✅");
       setRoomNumber("");
       setCapacity("");
+
+      
       fetchData();
+      
     } catch (err) {
       toast.error(err.response?.data?.message || "Creation failed ❌");
     }

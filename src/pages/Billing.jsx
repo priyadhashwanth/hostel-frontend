@@ -10,6 +10,51 @@ export default function Billing() {
 
   const role = getRole();
 
+  //razor pay
+
+   const handlePayment = async (billId) => {
+  try {
+    console.log("STEP1:Clicked", billId);
+
+    const { data } = await API.post(`/bills/${billId}/create-order`);
+    console.log("STEP2:Order response", data);
+
+    const options = {
+      key: data.key,
+      amount: data.amount,
+      currency: "INR",
+      name: "Hostel Payment",
+      description: "Bill Payment",
+      order_id: data.orderId,
+
+      handler: async function (response) {
+        console.log("STEP 3:Payment success", response);
+
+        await API.post("/bills/verify-payment", {
+          ...response,
+          billId
+        });
+
+        alert("Payment Successful ✅");
+        fetchData();
+      },
+
+      theme: {
+        color: "#3399cc"
+      }
+    };
+
+    console.log("STEP 4: Opening Razorpay");
+
+    const rzp = new window.Razorpay(options);
+    rzp.open();
+
+  } catch (err) {
+    console.error(err);
+    alert("Payment failed ❌");
+  }
+};
+
   // CREATE STATES
   const [userId, setUserId] = useState("");
   const [rent, setRent] = useState("");
@@ -19,7 +64,7 @@ export default function Billing() {
   const [lateFee, setLateFee] = useState("");
 
   // ✅ INSTALLMENT STATE
-  const [amount, setAmount] = useState("");
+  const [amounts, setAmounts] = useState({});
 
   // 🔄 FETCH DATA
   const fetchData = async () => {
@@ -83,54 +128,78 @@ export default function Billing() {
   };
 
   // 💰 PAY INSTALLMENT
+  
   const payInstallment = async (id) => {
-    try {
-      await API.put(`/bills/installment/${id}`, { amount });
+  try {
+    const payAmount = Number(amounts[id]);
 
-      toast.success("Partial payment done 💰");
-      setAmount("");
-      fetchData();
-    } catch (err) {
-      toast.error(err.response?.data?.message);
+    if (!payAmount || payAmount <= 0) {
+      toast.error("Enter valid amount ❌");
+      return;
     }
-  };
+
+    await API.put(`/bills/installment/${id}`, {
+      amount: payAmount
+    });
+
+    toast.success("Partial payment done 💰");
+
+    setAmounts({
+      ...amounts,
+      [id]:""
+    });
+    fetchData();
+
+  } catch (err) {
+    toast.error(
+      err.response?.data?.message || "Payment failed ❌"
+    );
+  }
+};
 
   // 🗑 DELETE BILL
+  
   const deleteBill = (id) => {
-    toast(
-      ({ closeToast }) => (
-        <div>
-          <p className="mb-2 font-semibold">Delete this bill?</p>
+  toast(
+    ({ closeToast }) => (
+      <div>
+        <p className="mb-2 font-semibold">Delete this bill?</p>
 
-          <div className="flex gap-2">
-            <button
-              onClick={async () => {
-                try {
-                  await API.delete(`/bills/${id}`);
+        <div className="flex gap-2">
+          <button
+            onClick={async () => {
+              try {
+                const res = await API.delete(`/bills/${id}`);
+
+                if (res.status === 200) {
                   toast.success("Bill deleted 🗑️");
                   fetchData();
-                } catch (err) {
-                  toast.error("Delete failed ❌");
                 }
-                closeToast();
-              }}
-              className="bg-red-500 text-white px-3 py-1 rounded"
-            >
-              Yes
-            </button>
 
-            <button
-              onClick={closeToast}
-              className="bg-gray-300 px-3 py-1 rounded"
-            >
-              Cancel
-            </button>
-          </div>
+              } catch (err) {
+                console.log(err);
+                toast.error("Delete failed ❌");
+              }
+
+              closeToast();
+            }}
+            className="bg-red-500 text-white px-3 py-1 rounded"
+          >
+            Yes
+          </button>
+
+          <button
+            onClick={closeToast}
+            className="bg-gray-300 px-3 py-1 rounded"
+          >
+            Cancel
+          </button>
         </div>
-      ),
-      { autoClose: false }
-    );
-  };
+      </div>
+    ),
+    { autoClose: false }
+  );
+};
 
   return (
     <Layout>
@@ -157,7 +226,7 @@ export default function Billing() {
               ))}
             </select>
 
-            <input placeholder="Rent" value={rent} onChange={(e) => setRent(e.target.value)} className="border p-3 rounded" />
+            <input placeholder="Rent" value={rent} onChange={(e) => setRent(Number(e.target.value))} className="border p-3 rounded" />
             <input placeholder="Utilities" value={utilities} onChange={(e) => setUtilities(e.target.value)} className="border p-3 rounded" />
             <input placeholder="Extra Charges" value={extraCharges} onChange={(e) => setExtraCharges(e.target.value)} className="border p-3 rounded" />
             <input placeholder="Discount" value={discount} onChange={(e) => setDiscount(e.target.value)} className="border p-3 rounded" />
@@ -186,7 +255,7 @@ export default function Billing() {
           const paidAmount =
             bill.paymentHistory?.reduce((sum, p) => sum + p.amount, 0) || 0;
 
-          const remainingAmount = total - paidAmount;
+          const remainingAmount = bill.remainingAmount;
 
           return (
             <div key={bill._id} className="bg-white p-5 rounded-xl shadow">
@@ -199,7 +268,8 @@ export default function Billing() {
               <p>Late Fee: ₹{bill.lateFee}</p>
 
               <p className="font-semibold mt-2">Total: ₹{total}</p>
-              <p>Remaining: ₹{remainingAmount}</p>
+              <p className="font-bold text-red-500">
+                Remaining: ₹{bill.remainingAmount}</p>
 
               <p className={`mt-2 ${bill.status === "paid" ? "text-green-500" : "text-red-500"}`}>
                 {bill.status}
@@ -232,8 +302,14 @@ export default function Billing() {
                   <input
                     type="number"
                     placeholder="Enter amount"
-                    value={amount}
-                    onChange={(e) => setAmount(e.target.value)}
+                    value={amounts[bill._id]||""}
+                    onChange={(e) => 
+                      setAmounts({
+                      ...amounts,
+                      [bill._id]:e.target.value
+
+                    })
+                  }
                     className="border p-2 mt-2 rounded w-full"
                   />
 
@@ -251,6 +327,15 @@ export default function Billing() {
                     >
                       Pay Partial
                     </button>
+
+                    {/* ✅ NEW RAZORPAY BUTTON */}
+      <button
+        onClick={() => handlePayment(bill._id)}
+        className="bg-purple-600 text-white px-4 py-1 rounded"
+      >
+        Pay Online 💳
+      </button>
+
                   </div>
                 </>
               )}
