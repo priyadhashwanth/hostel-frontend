@@ -20,13 +20,17 @@ export default function Residents() {
     relation: ""
   });
 
-  // 🔄 Fetch Residents
+  //  Fetch Residents
   const fetchUsers = async () => {
     try {
 const storedUser=JSON.parse(localStorage.getItem("user"));
 
       if (storedUser?.role === "resident") {
-  setResidents([storedUser]);
+      
+        // ✅ FETCH FROM BACKEND
+      const res = await API.get("auth/me");
+  
+        setResidents([res.data]);
 } else {
   const res = await API.get("/users");
 
@@ -42,10 +46,11 @@ const storedUser=JSON.parse(localStorage.getItem("user"));
   };
 
   useEffect(() => {
+
     fetchUsers();
   }, []);
 
-  // ✏️ Edit Click
+  //  Edit Click
   const handleEdit = (r) => {
     setEditId(r._id);
 
@@ -59,7 +64,7 @@ const storedUser=JSON.parse(localStorage.getItem("user"));
     });
   };
 
-  // 💾 Update Resident
+  //  Update Resident
   const updateResident = async () => {
     try {
       await API.put(`/users/${editId}`, {
@@ -73,12 +78,12 @@ const storedUser=JSON.parse(localStorage.getItem("user"));
         }
       });
 
-      toast.success("Resident updated ✅");
+      toast.success("Resident updated ");
       setEditId(null);
       fetchUsers();
 
     } catch (err) {
-      toast.error("Update failed ❌");
+      toast.error("Update failed ");
     }
   };
 

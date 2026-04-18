@@ -1,4 +1,4 @@
-// ✅ Get stored user safely
+//  Get stored user safely
 export const getUser = () => {
   try {
     const user = localStorage.getItem("user");
@@ -9,23 +9,23 @@ export const getUser = () => {
   }
 };
 
-// ✅ Get role (admin / staff / resident)
+//  Get role (admin / staff / resident)
 export const getRole = () => {
   const user = getUser();
   return user?.role || null;
 };
 
-// ✅ Get token
+//  Get token
 export const getToken = () => {
   return localStorage.getItem("token");
 };
 
-// ✅ Check if logged in
+//  Check if logged in
 export const isLoggedIn = () => {
   return !!getToken();
 };
 
-// ✅ Logout
+//  Logout
 export const logout = () => {
   localStorage.removeItem("token");
   localStorage.removeItem("user");

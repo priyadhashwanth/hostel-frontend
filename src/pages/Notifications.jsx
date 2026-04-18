@@ -4,7 +4,7 @@ import API from "../services/api";
 export default function Notifications() {
   const [notifications, setNotifications] = useState([]);
 
-  // ✅ Fetch notifications
+  //  Fetch notifications
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
@@ -18,7 +18,7 @@ export default function Notifications() {
     fetchNotifications();
   }, []);
 
-  // ✅ Mark as read
+  //  Mark as read
   const markAsRead = async (id) => {
     try {
       await API.put(`/notifications/${id}`);
@@ -35,7 +35,7 @@ export default function Notifications() {
 
   return (
     <div className="p-6 ml-64 bg-gray-100 min-h-screen">
-      <h1 className="text-2xl font-bold mb-6">Notifications 🔔</h1>
+      <h1 className="text-2xl font-bold mb-6">Notifications </h1>
 
       <div className="space-y-4">
         {notifications.length === 0 ? (

@@ -22,7 +22,7 @@ export default function Rooms() {
   const [editRoomId, setEditRoomId] = useState(null);
   const [editCapacity, setEditCapacity] = useState("");
 
-  // ✅ FETCH DATA (FIXED)
+  //  FETCH DATA (FIXED)
   const fetchData = async () => {
     try {
       
@@ -34,7 +34,7 @@ export default function Rooms() {
         room.occupants?.some(u => u._id === user._id)
       );
 
-        setRooms(myRoom ? [myRoom] :[]); // ✅ only my room
+        setRooms(myRoom ? [myRoom] :[]); //  only my room
       } else {
         
         const usersRes = await API.get("/users");
@@ -45,7 +45,7 @@ export default function Rooms() {
     } catch (err) {
       console.log(err);
 
-      // ✅ prevent crash
+      //  prevent crash
       if (role === "resident") {
         setRooms([]);
       }
@@ -56,12 +56,12 @@ export default function Rooms() {
     fetchData();
   }, []);
 
-  // ➕ CREATE ROOM
+  //  CREATE ROOM
   const createRoom = async () => {
     try {
       await API.post("/rooms", { roomNumber, capacity });
 
-      toast.success("Room Created ✅");
+      toast.success("Room Created ");
       setRoomNumber("");
       setCapacity("");
 
@@ -69,36 +69,36 @@ export default function Rooms() {
       fetchData();
       
     } catch (err) {
-      toast.error(err.response?.data?.message || "Creation failed ❌");
+      toast.error(err.response?.data?.message || "Creation failed ");
     }
   };
 
-  // ✏️ START EDIT
+  //  START EDIT
   const startEdit = (room) => {
     setEditRoomId(room._id);
     setEditCapacity(room.capacity);
   };
 
-  // 💾 UPDATE ROOM
+  //  UPDATE ROOM
   const updateRoom = async () => {
     try {
       await API.put(`/rooms/${editRoomId}`, {
         capacity: editCapacity,
       });
 
-      toast.success("Room updated ✏️");
+      toast.success("Room updated ");
       setEditRoomId(null);
       fetchData();
     } catch (err) {
-      toast.error(err.response?.data?.message || "Update failed ❌");
+      toast.error(err.response?.data?.message || "Update failed ");
     }
   };
 
-  // 🏠 ASSIGN ROOM
+  //  ASSIGN ROOM
   const assignRoom = async () => {
     try {
       if (!selectedUser || !selectedRoom) {
-        return toast.warning("Select user and room ⚠️");
+        return toast.warning("Select user and room ");
       }
 
       await API.post("/rooms/assign", {
@@ -106,26 +106,26 @@ export default function Rooms() {
         roomId: selectedRoom,
       });
 
-      toast.success("Room assigned 🏠");
+      toast.success("Room assigned ");
       fetchData();
     } catch (err) {
-      toast.error(err.response?.data?.message || "Assignment failed ❌");
+      toast.error(err.response?.data?.message || "Assignment failed ");
     }
   };
 
-  // 🚪 CHECKOUT
+  //  CHECKOUT
   const checkout = async (userId) => {
     try {
       await API.post("/rooms/checkout", { userId });
 
-      toast.success("Checkout successful 🚪");
+      toast.success("Checkout successful ");
       fetchData();
     } catch (err) {
-      toast.error(err.response?.data?.message || "Checkout failed ❌");
+      toast.error(err.response?.data?.message || "Checkout failed ");
     }
   };
 
-  // 🗑 DELETE ROOM
+  //  DELETE ROOM
   
   const deleteRoom = (id) => {
   toast(
@@ -142,7 +142,7 @@ export default function Rooms() {
                 fetchData();
               } catch (err) {
                 toast.error(
-                  err.response?.data?.message || "Delete failed ❌"
+                  err.response?.data?.message || "Delete failed "
                 );
               }
               closeToast();
@@ -175,12 +175,12 @@ export default function Rooms() {
         {role === "resident" ? "My Room" : "Room Management"}
       </h1>
 
-      {/* 🔴 SHOW MESSAGE IF NO ROOM */}
+      {/*  SHOW MESSAGE IF NO ROOM */}
       {rooms.length === 0 && role === "resident" && (
         <p className="text-gray-500">No room assigned yet</p>
       )}
 
-      {/* 🔴 ADMIN ONLY */}
+      {/*  ADMIN ONLY */}
       {role === "admin" && (
         <>
           {/* CREATE */}
@@ -251,7 +251,7 @@ export default function Rooms() {
         </>
       )}
 
-      {/* 🧾 ROOMS GRID */}
+      {/*  ROOMS GRID */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {rooms.map((room) => {
           const isFull =
@@ -273,7 +273,7 @@ export default function Rooms() {
                 {isFull ? "Full" : "Available"}
               </p>
 
-              {/* 🔴 ADMIN ONLY */}
+              {/*  ADMIN ONLY */}
               {role === "admin" && (
                 <>
                 {editRoomId === room._id ? (

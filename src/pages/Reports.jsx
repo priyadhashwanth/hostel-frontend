@@ -23,7 +23,7 @@ export default function Reports() {
   const [report, setReport] = useState(null);
   const[monthlyData,setMonthlyData]=useState([]);
 
-  // ✅ Fetch report
+  //  Fetch report
   useEffect(() => {
     const fetchReport = async () => {
       try {
@@ -55,7 +55,7 @@ export default function Reports() {
   fetchMonthly();
 }, []);
 
-  // ✅ Loading state
+  //  Loading state
   if (!report) {
     return (
       <Layout>
@@ -66,7 +66,7 @@ export default function Reports() {
     );
   }
 
-  // ✅ Bar chart data (normalized)
+  //  Bar chart data (normalized)
   const revenueData = [
     {
       name: "Revenue",
@@ -82,7 +82,7 @@ export default function Reports() {
     },
   ];
 
-  // ✅ Pie chart data (safe)
+  //  Pie chart data (safe)
   const occupancyData = [
     {
       name: "Occupied",
@@ -101,7 +101,7 @@ export default function Reports() {
       <div className="p-6 space-y-8">
         <h1 className="text-2xl font-bold">Reports 📊</h1>
 
-        {/* ✅ Financial Overview */}
+        {/*  Financial Overview */}
         <div className="bg-white p-6 rounded shadow">
           <h2 className="text-lg font-semibold mb-4">
             Financial Overview
@@ -146,7 +146,7 @@ export default function Reports() {
   </ResponsiveContainer>
 </div>
 
-        {/* ✅ Occupancy */}
+        {/*  Occupancy */}
         <div className="bg-white p-6 rounded shadow">
           <h2 className="text-lg font-semibold mb-4">
             Occupancy

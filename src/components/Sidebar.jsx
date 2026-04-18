@@ -10,7 +10,7 @@ export default function Sidebar() {
 
   const handleLogout = async () => {
   try {
-     // 🔥 IMPORTANT
+     //  IMPORTANT
 
     logout(); // clear localStorage
 
@@ -30,7 +30,7 @@ export default function Sidebar() {
 
       <h2 className="text-2xl font-bold mb-6">Hostel</h2>
 
-      {/* ✅ ADD HERE 👇 */}
+      {/* role */}
         <div className="bg-gray-800 p-3 rounded mb-6 text-white">
           <p className="font-semibold">
             {user?.name}

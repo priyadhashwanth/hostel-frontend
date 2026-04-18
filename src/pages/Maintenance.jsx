@@ -19,10 +19,10 @@ export default function Maintenance() {
   // Assign
   const [selectedStaff, setSelectedStaff] = useState("");
 
-  // ✏️ EDIT STATE
+  //  EDIT STATE
 const [editId, setEditId] = useState(null);
 
-  // 🔄 Fetch Data
+  //  Fetch Data
   const fetchData = async () => {
   try {
     let res;
@@ -36,7 +36,7 @@ const [editId, setEditId] = useState(null);
       
       console.log("REQUESTS:",res.data);
 
-      // 👇 ADD THIS (VERY IMPORTANT)
+      //  users 
       const usersRes = await API.get("/users");
       console.log("USERS:", usersRes.data);
       setUsers(usersRes.data);
@@ -55,7 +55,7 @@ const [editId, setEditId] = useState(null);
     fetchData();
   }, []);
 
-  // ➕ CREATE REQUEST (Resident)
+  //  CREATE REQUEST (Resident)
   const createRequest = async () => {
     try {
       await API.post("/maintenance", {
@@ -64,7 +64,7 @@ const [editId, setEditId] = useState(null);
         priority
       });
 
-      toast.success("Request created ✅");
+      toast.success("Request created ");
 
       setTitle("");
       setIssue("");
@@ -77,7 +77,7 @@ const [editId, setEditId] = useState(null);
     }
   };
 
-  // 🗑️ DELETE
+  //  DELETE
   const deleteRequest = (id) => {
   toast.info(
     <div>
@@ -87,12 +87,12 @@ const [editId, setEditId] = useState(null);
         onClick={async () => {
           try {
             await API.delete(`/maintenance/${id}`);
-            toast.success("Deleted successfully ✅");
+            toast.success("Deleted successfully ");
             fetchData();
             toast.dismiss(); // close confirm toast
           } catch (err) {
             console.log(err.response?.data);
-            toast.error(err.response?.data?.message || "Delete failed ❌");
+            toast.error(err.response?.data?.message || "Delete failed ");
           }
         }}
         style={{ marginRight: "10px" }}
@@ -109,11 +109,11 @@ const [editId, setEditId] = useState(null);
 };
   
 
-  // 👨‍🔧 ASSIGN STAFF
+  //  ASSIGN STAFF
   const assignTask = async (id) => {
   try {
     if (!selectedStaff) {
-      return toast.warning("Select a staff member ⚠️");
+      return toast.warning("Select a staff member ");
     }
 
     await API.put(`/maintenance/assign/${id}`, {
@@ -125,10 +125,10 @@ const [editId, setEditId] = useState(null);
     fetchData();
 
   } catch (err) {
-    toast.error(err.response?.data?.message || "Assign failed ❌");
+    toast.error(err.response?.data?.message || "Assign failed ");
   }
 };
-  // 🔄 UPDATE STATUS
+  //  UPDATE STATUS
   
   const updateStatus = async (id, status) => {
   try {
@@ -140,11 +140,11 @@ const [editId, setEditId] = useState(null);
 
   } catch (err) {
     console.error(err);
-    toast.error(err.response?.data?.message || "Status update failed ❌");
+    toast.error(err.response?.data?.message || "Status update failed ");
   }
 };
 
-  // ✏️ UPDATE REQUEST
+  //  UPDATE REQUEST
 const updateRequest = async () => {
   try {
     await API.put(`/maintenance/${editId}`, {
@@ -153,7 +153,7 @@ const updateRequest = async () => {
       priority
     });
 
-    toast.success(" Request Updated ✅");
+    toast.success(" Request Updated ");
 
     setEditId(null);
     setTitle("");
@@ -163,7 +163,7 @@ const updateRequest = async () => {
     fetchData();
 
   } catch (err) {
-    toast.error(err.response?.data?.message || "Update failed ❌");
+    toast.error(err.response?.data?.message || "Update failed ");
 };
 }
 
@@ -171,7 +171,7 @@ const updateRequest = async () => {
     <Layout>
       <h1 className="text-3xl font-bold mb-6">Maintenance</h1>
 
-      {/* 🧾 CREATE REQUEST (Resident only) */}
+      {/*  CREATE REQUEST (Resident only) */}
       {role === "resident" && (
         <div className="bg-white p-6 rounded shadow mb-6">
           <h2 className="font-semibold mb-3">Create Request</h2>
@@ -209,7 +209,7 @@ const updateRequest = async () => {
         </div>
       )}
 
-      {/* 📋 REQUEST LIST */}
+      {/*  REQUEST LIST */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
 
         {requests.map((req) => (
@@ -243,7 +243,7 @@ const updateRequest = async () => {
   <option value="">Select Staff</option>
 
   {users
-    .filter(u => u.role?.toLowerCase() === "staff") // 👈 HERE
+    .filter(u => u.role?.toLowerCase() === "staff") 
     .map(u => (
       <option key={u._id} value={u._id}>
         {u.name}
@@ -286,7 +286,7 @@ const updateRequest = async () => {
     </>
   )}
 
-                {/* 👨‍🎓 RESIDENT CONTROLS */}
+                {/*  RESIDENT CONTROLS */}
 {role === "resident" && (
   <div className="mt-2">
 

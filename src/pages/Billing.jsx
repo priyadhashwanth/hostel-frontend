@@ -35,7 +35,7 @@ export default function Billing() {
           billId
         });
 
-        alert("Payment Successful ✅");
+        alert("Payment Successful ");
         fetchData();
       },
 
@@ -51,7 +51,7 @@ export default function Billing() {
 
   } catch (err) {
     console.error(err);
-    alert("Payment failed ❌");
+    alert("Payment failed ");
   }
 };
 
@@ -63,7 +63,7 @@ export default function Billing() {
   const [discount, setDiscount] = useState("");
   const [lateFee, setLateFee] = useState("");
 
-  // ✅ INSTALLMENT STATE
+  //  INSTALLMENT STATE
   const [amounts, setAmounts] = useState({});
 
   // 🔄 FETCH DATA
@@ -89,7 +89,7 @@ export default function Billing() {
     fetchData();
   }, []);
 
-  // ➕ CREATE BILL
+  //  CREATE BILL
   const createBill = async () => {
     try {
       await API.post("/bills", {
@@ -101,7 +101,7 @@ export default function Billing() {
         lateFee,
       });
 
-      toast.success("Bill created 💰");
+      toast.success("Bill created ");
 
       setUserId("");
       setRent("");
@@ -112,29 +112,29 @@ export default function Billing() {
 
       fetchData();
     } catch (err) {
-      toast.error(err.response?.data?.message || "Failed ❌");
+      toast.error(err.response?.data?.message || "Failed ");
     }
   };
 
-  // 💳 PAY FULL
+  // PAY FULL
   const payBill = async (id) => {
     try {
       await API.put(`/bills/pay/${id}`);
-      toast.success("Payment successful 💰");
+      toast.success("Payment successful ");
       fetchData();
     } catch (err) {
-      toast.error(err.response?.data?.message || "Payment failed ❌");
+      toast.error(err.response?.data?.message || "Payment failed ");
     }
   };
 
-  // 💰 PAY INSTALLMENT
+  //  PAY INSTALLMENT
   
   const payInstallment = async (id) => {
   try {
     const payAmount = Number(amounts[id]);
 
     if (!payAmount || payAmount <= 0) {
-      toast.error("Enter valid amount ❌");
+      toast.error("Enter valid amount ");
       return;
     }
 
@@ -142,7 +142,7 @@ export default function Billing() {
       amount: payAmount
     });
 
-    toast.success("Partial payment done 💰");
+    toast.success("Partial payment done ");
 
     setAmounts({
       ...amounts,
@@ -152,7 +152,7 @@ export default function Billing() {
 
   } catch (err) {
     toast.error(
-      err.response?.data?.message || "Payment failed ❌"
+      err.response?.data?.message || "Payment failed "
     );
   }
 };
@@ -178,7 +178,7 @@ export default function Billing() {
 
               } catch (err) {
                 console.log(err);
-                toast.error("Delete failed ❌");
+                toast.error("Delete failed ");
               }
 
               closeToast();
@@ -328,12 +328,12 @@ export default function Billing() {
                       Pay Partial
                     </button>
 
-                    {/* ✅ NEW RAZORPAY BUTTON */}
+                    {/* NEW RAZORPAY BUTTON */}
       <button
         onClick={() => handlePayment(bill._id)}
         className="bg-purple-600 text-white px-4 py-1 rounded"
       >
-        Pay Online 💳
+        Pay Online 
       </button>
 
                   </div>
