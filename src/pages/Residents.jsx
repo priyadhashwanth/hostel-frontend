@@ -27,7 +27,7 @@ const storedUser=JSON.parse(localStorage.getItem("user"));
 
       if (storedUser?.role === "resident") {
       
-        // ✅ FETCH FROM BACKEND
+        //  FETCH FROM BACKEND
       const res = await API.get("auth/me");
   
         setResidents([res.data]);
