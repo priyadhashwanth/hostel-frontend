@@ -1,15 +1,14 @@
 import Sidebar from "./Sidebar";
-import  {getUser,getRole} from "../utils/auth";
 
 export default function Layout({ children }) {
   return (
-    <div className="flex">
-      
+    <div className="flex min-h-screen bg-gray-100">
+
       {/* Sidebar */}
       <Sidebar />
 
       {/* Main Content */}
-      <div className="ml-56 w-full p-6 bg-gray-100 min-h-screen">
+      <div className="ml-64 w-full p-6">
         {children}
       </div>
 

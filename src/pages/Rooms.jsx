@@ -3,6 +3,15 @@ import API from "../services/api";
 import Layout from "../components/Layout";
 import { toast } from "react-toastify";
 import { getRole } from "../utils/auth";
+import {
+  FaBed,
+  FaUsers,
+  FaPlus,
+  FaEdit,
+  FaTrash,
+  FaDoorOpen,
+  FaHome,
+} from "react-icons/fa";
 
 export default function Rooms() {
   const [rooms, setRooms] = useState([]);
@@ -169,56 +178,54 @@ export default function Rooms() {
   );
 };
 
-  return (
+    return (
     <Layout>
-      <h1 className="text-3xl font-bold mb-6">
-        {role === "resident" ? "My Room" : "Room Management"}
+      <h1 className="text-4xl font-bold text-gray-800 mb-6">
+        {role === "resident" ? "🏠 My Room" : "Room Management"}
       </h1>
 
-      {/*  SHOW MESSAGE IF NO ROOM */}
-      {rooms.length === 0 && role === "resident" && (
-        <p className="text-gray-500">No room assigned yet</p>
-      )}
-
-      {/*  ADMIN ONLY */}
+      {/* ADMIN SECTION */}
       {role === "admin" && (
         <>
-          {/* CREATE */}
-          <div className="bg-white p-6 rounded-xl shadow mb-6">
-            <h2 className="text-xl font-semibold mb-4">Create Room</h2>
+          {/* CREATE ROOM */}
+          <div className="bg-white rounded-2xl shadow-md p-6 mb-6">
+            <h2 className="text-xl font-bold mb-4">Create Room</h2>
 
-            <div className="flex gap-4">
+            <div className="grid md:grid-cols-3 gap-4">
               <input
+                type="text"
                 placeholder="Room Number"
                 value={roomNumber}
                 onChange={(e) => setRoomNumber(e.target.value)}
-                className="border p-3 rounded w-1/3"
+                className="border p-3 rounded-lg focus:ring-2 focus:ring-blue-400"
               />
 
               <input
+                type="number"
                 placeholder="Capacity"
                 value={capacity}
                 onChange={(e) => setCapacity(e.target.value)}
-                className="border p-3 rounded w-1/3"
+                className="border p-3 rounded-lg focus:ring-2 focus:ring-blue-400"
               />
 
               <button
                 onClick={createRoom}
-                className="bg-green-500 text-white px-6 rounded"
+                className="bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg font-semibold"
               >
+                <FaPlus className="inline mr-2" />
                 Add Room
               </button>
             </div>
           </div>
 
-          {/* ASSIGN */}
-          <div className="bg-white p-6 rounded-xl shadow mb-6">
-            <h2 className="text-xl font-semibold mb-4">Assign Room</h2>
+          {/* ASSIGN ROOM */}
+          <div className="bg-white rounded-2xl shadow-md p-6 mb-6">
+            <h2 className="text-xl font-bold mb-4">Assign Room</h2>
 
-            <div className="flex gap-4">
+            <div className="grid md:grid-cols-3 gap-4">
               <select
                 onChange={(e) => setSelectedUser(e.target.value)}
-                className="border p-3 rounded w-1/3"
+                className="border p-3 rounded-lg"
               >
                 <option>Select User</option>
                 {users.map((u) => (
@@ -230,7 +237,7 @@ export default function Rooms() {
 
               <select
                 onChange={(e) => setSelectedRoom(e.target.value)}
-                className="border p-3 rounded w-1/3"
+                className="border p-3 rounded-lg"
               >
                 <option>Select Room</option>
                 {rooms.map((r) => (
@@ -242,7 +249,7 @@ export default function Rooms() {
 
               <button
                 onClick={assignRoom}
-                className="bg-blue-500 text-white px-6 rounded"
+                className="bg-blue-500 text-white rounded-lg font-semibold"
               >
                 Assign
               </button>
@@ -251,97 +258,110 @@ export default function Rooms() {
         </>
       )}
 
-      {/*  ROOMS GRID */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {/* ROOM CARDS */}
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
         {rooms.map((room) => {
           const isFull =
             (room.occupants?.length || 0) >= room.capacity;
 
           return (
-            <div key={room._id} className="bg-white p-5 rounded-xl shadow">
-              <h2 className="text-lg font-bold">
-                Room {room.roomNumber}
-              </h2>
+            <div
+              key={room._id}
+              className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all p-6"
+            >
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-2xl font-bold text-gray-800">
+                  <FaHome className="inline mr-2 text-blue-500" />
+                  Room {room.roomNumber}
+                </h2>
 
-              <p>Capacity: {room.capacity}</p>
+                <span
+                  className={`px-3 py-1 rounded-full text-sm font-semibold ${
+                    isFull
+                      ? "bg-red-100 text-red-600"
+                      : "bg-green-100 text-green-600"
+                  }`}
+                >
+                  {isFull ? "Full" : "Available"}
+                </span>
+              </div>
 
-              <p
-                className={`mt-2 ${
-                  isFull ? "text-red-500" : "text-green-500"
-                }`}
-              >
-                {isFull ? "Full" : "Available"}
+              <p className="text-gray-600 mb-3">
+                <FaUsers className="inline mr-2" />
+                Capacity: {room.capacity}
               </p>
 
-              {/*  ADMIN ONLY */}
+              {/* EDIT */}
               {role === "admin" && (
                 <>
-                {editRoomId === room._id ? (
-      <div className="mt-3 flex gap-2">
-        <input
-          value={editCapacity}
-          onChange={(e) => setEditCapacity(e.target.value)}
-          className="border p-2 rounded w-full"
-        />
+                  {editRoomId === room._id ? (
+                    <div className="flex gap-2 mb-4">
+                      <input
+                        value={editCapacity}
+                        onChange={(e) =>
+                          setEditCapacity(e.target.value)
+                        }
+                        className="border p-2 rounded-lg w-full"
+                      />
 
-        <button
-          onClick={updateRoom}
-          className="bg-blue-500 text-white px-3 rounded"
-        >
-          Save
-        </button>
-      </div>
-    ) : (
-      <>
-                  <button
-                    onClick={() => startEdit(room)}
-                    className="bg-yellow-500 text-white px-3 py-1 mt-2 rounded"
-                  >
-                    Edit
-                  </button>
+                      <button
+                        onClick={updateRoom}
+                        className="bg-blue-500 text-white px-4 rounded-lg"
+                      >
+                        Save
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex gap-2 mb-4">
+                      <button
+                        onClick={() => {
+                          setEditRoomId(room._id);
+                          setEditCapacity(room.capacity);
+                        }}
+                        className="bg-yellow-500 text-white px-4 py-2 rounded-lg"
+                      >
+                        <FaEdit />
+                      </button>
 
-                  <button
-                    onClick={() => deleteRoom(room._id)}
-                    className="bg-red-500 text-white px-3 py-1 mt-2 ml-2 rounded"
-                  >
-                    Delete
-                  </button>
+                      <button
+                        onClick={() => deleteRoom(room._id)}
+                        className="bg-red-500 text-white px-4 py-2 rounded-lg"
+                      >
+                        <FaTrash />
+                      </button>
+                    </div>
+                  )}
                 </>
-              )}
-              </>
               )}
 
               {/* OCCUPANTS */}
-              <div className="mt-4">
-                <h3 className="font-semibold">Occupants</h3>
+              <h3 className="font-bold text-lg mb-2">Occupants</h3>
 
-                {(!room.occupants || room.occupants.length === 0) && (
-                  <p className="text-gray-400">No occupants</p>
-                )}
-
-                {room.occupants?.map((u) => (
+              {room.occupants?.length === 0 ? (
+                <p className="text-gray-400">No Occupants</p>
+              ) : (
+                room.occupants?.map((u) => (
                   <div
                     key={u._id}
-                    className="flex justify-between mt-2 bg-gray-100 p-2 rounded"
+                    className="flex justify-between bg-gray-100 rounded-lg p-3 mb-2"
                   >
                     <span>{u.name}</span>
 
                     {role === "admin" && (
                       <button
                         onClick={() => checkout(u._id)}
-                        className="bg-red-500 text-white px-2 rounded"
+                        className="bg-pink-500 text-white px-3 rounded-lg"
                       >
-                        Checkout
+                        <FaDoorOpen />
                       </button>
                     )}
-                      </div>
-                ))}
                   </div>
-                  </div>
-              );
-            })}
+                ))
+              )}
             </div>
-            </Layout>
           );
-        }
-  
+        })}
+      </div>
+    </Layout>
+  );
+}

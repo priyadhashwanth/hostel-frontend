@@ -88,117 +88,144 @@ const storedUser=JSON.parse(localStorage.getItem("user"));
   };
 
   return (
-    <Layout>
-      <h1 className="text-3xl font-bold mb-6">Residents 👨‍🎓</h1>
+  <Layout>
+    <h1 className="text-4xl font-bold text-gray-800 mb-2">
+      Residents 👨‍🎓
+    </h1>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+    <p className="text-gray-500 mb-6">
+      Manage all hostel residents easily
+    </p>
 
-        {residents.map((r) => (
-          <div key={r._id} className="bg-white p-5 rounded shadow">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {residents.map((r) => (
+        <div
+          key={r._id}
+          className="bg-white p-6 rounded-2xl shadow hover:shadow-xl transition"
+        >
+          {editId !== r._id ? (
+            <>
+              <div className="flex items-center gap-4 mb-4">
+                <div className="w-14 h-14 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xl font-bold">
+                  {r.name?.charAt(0)}
+                </div>
 
-            {/* VIEW MODE */}
-            {editId !== r._id ? (
-              <>
-                <h2 className="font-bold text-lg">{r.name}</h2>
+                <div>
+                  <h2 className="text-xl font-bold text-gray-800">
+                    {r.name}
+                  </h2>
+                  <p className="text-sm text-gray-500">
+                    {r.email}
+                  </p>
+                </div>
+              </div>
 
-                <p>Email: {r.email}</p>
-                <p>Phone: {r.phone || "-"}</p>
-                <p>Address: {r.address || "-"}</p>
-
-                <p className="mt-2">
-                  Room: {r.room?.roomNumber || "Not Assigned"}
-                </p>
-
+              <div className="space-y-2 text-gray-600">
+                <p>📞 {r.phone || "-"}</p>
+                <p>📍 {r.address || "-"}</p>
+                <p>🏠 Room: {r.room?.roomNumber || "Not Assigned"}</p>
                 <p>
-                  Emergency: {r.emergencyContact?.name || "-"} (
+                  🚨 Emergency:{" "}
+                  {r.emergencyContact?.name || "-"} (
                   {r.emergencyContact?.phone || "-"})
                 </p>
+              </div>
 
-                {/* ADMIN ONLY */}
-                {role === "admin" && (
-                  <button
-                    onClick={() => handleEdit(r)}
-                    className="bg-blue-500 text-white px-3 mt-3"
-                  >
-                    Edit
-                  </button>
-                )}
-              </>
-            ) : (
-              <>
-                {/* EDIT MODE */}
-                <input
-                  value={form.name}
-                  onChange={(e) =>
-                    setForm({ ...form, name: e.target.value })
-                  }
-                  placeholder="Name"
-                  className="border p-2 mb-2 w-full"
-                />
+              {role === "admin" && (
+                <button
+                  onClick={() => handleEdit(r)}
+                  className="mt-5 bg-blue-500 hover:bg-blue-600 text-white px-5 py-2 rounded-lg"
+                >
+                  Edit Resident
+                </button>
+              )}
+            </>
+          ) : (
+            <>
+              <input
+                value={form.name}
+                onChange={(e) =>
+                  setForm({ ...form, name: e.target.value })
+                }
+                placeholder="Name"
+                className="border p-3 rounded-lg mb-3 w-full"
+              />
 
-                <input
-                  value={form.phone}
-                  onChange={(e) =>
-                    setForm({ ...form, phone: e.target.value })
-                  }
-                  placeholder="Phone"
-                  className="border p-2 mb-2 w-full"
-                />
+              <input
+                value={form.phone}
+                onChange={(e) =>
+                  setForm({ ...form, phone: e.target.value })
+                }
+                placeholder="Phone"
+                className="border p-3 rounded-lg mb-3 w-full"
+              />
 
-                <input
-                  value={form.address}
-                  onChange={(e) =>
-                    setForm({ ...form, address: e.target.value })
-                  }
-                  placeholder="Address"
-                  className="border p-2 mb-2 w-full"
-                />
+              <input
+                value={form.address}
+                onChange={(e) =>
+                  setForm({ ...form, address: e.target.value })
+                }
+                placeholder="Address"
+                className="border p-3 rounded-lg mb-3 w-full"
+              />
 
-                <input
-                  value={form.emergencyName}
-                  onChange={(e) =>
-                    setForm({ ...form, emergencyName: e.target.value })
-                  }
-                  placeholder="Emergency Name"
-                  className="border p-2 mb-2 w-full"
-                />
+              <input
+                value={form.emergencyName}
+                onChange={(e) =>
+                  setForm({
+                    ...form,
+                    emergencyName: e.target.value,
+                  })
+                }
+                placeholder="Emergency Name"
+                className="border p-3 rounded-lg mb-3 w-full"
+              />
 
-                <input
-                  value={form.emergencyPhone}
-                  onChange={(e) =>
-                    setForm({ ...form, emergencyPhone: e.target.value })
-                  }
-                  placeholder="Emergency Phone"
-                  className="border p-2 mb-2 w-full"
-                />
+              <input
+                value={form.emergencyPhone}
+                onChange={(e) =>
+                  setForm({
+                    ...form,
+                    emergencyPhone: e.target.value,
+                  })
+                }
+                placeholder="Emergency Phone"
+                className="border p-3 rounded-lg mb-3 w-full"
+              />
 
-                <input
-                  value={form.relation}
-                  onChange={(e) =>
-                    setForm({ ...form, relation: e.target.value })
-                  }
-                  placeholder="Relation"
-                  className="border p-2 mb-2 w-full"
-                />
+              <input
+                value={form.relation}
+                onChange={(e) =>
+                  setForm({
+                    ...form,
+                    relation: e.target.value,
+                  })
+                }
+                placeholder="Relation"
+                className="border p-3 rounded-lg mb-4 w-full"
+              />
 
+              <div className="flex gap-3">
                 <button
                   onClick={updateResident}
-                  className="bg-green-500 text-white px-3 mr-2"
+                  className="bg-green-500 hover:bg-green-600 text-white px-5 py-2 rounded-lg"
                 >
                   Save
                 </button>
 
                 <button
                   onClick={() => setEditId(null)}
-                  className="bg-gray-400 text-white px-3"
+                  className="bg-gray-400 hover:bg-gray-500 text-white px-5 py-2 rounded-lg"
                 >
                   Cancel
                 </button>
-              </>
-            )}
-          </div>
-        ))}
-      </div>
-    </Layout>
-  );
+              </div>
+            </>
+          )}
+        </div>
+      ))}
+    </div>
+  </Layout>
+);
+  
 }

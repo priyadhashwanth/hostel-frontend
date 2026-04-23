@@ -168,32 +168,37 @@ const updateRequest = async () => {
 }
 
   return (
-    <Layout>
-      <h1 className="text-3xl font-bold mb-6">Maintenance</h1>
+  <Layout>
+    <h1 className="text-4xl font-bold text-gray-800 mb-6">
+      🛠 Maintenance Requests
+    </h1>
 
-      {/*  CREATE REQUEST (Resident only) */}
-      {role === "resident" && (
-        <div className="bg-white p-6 rounded shadow mb-6">
-          <h2 className="font-semibold mb-3">Create Request</h2>
+    {/* Create Form */}
+    {role === "resident" && (
+      <div className="bg-white p-6 rounded-2xl shadow-md mb-8">
+        <h2 className="text-xl font-semibold mb-4">
+          {editId ? "Edit Request" : "Create Request"}
+        </h2>
 
+        <div className="grid md:grid-cols-4 gap-4">
           <input
             placeholder="Title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className="border p-2 mr-2"
+            className="border p-3 rounded-lg"
           />
 
           <input
-            placeholder="issue Description"
+            placeholder="Issue Description"
             value={issue}
             onChange={(e) => setIssue(e.target.value)}
-            className="border p-2 mr-2"
+            className="border p-3 rounded-lg"
           />
 
           <select
             value={priority}
             onChange={(e) => setPriority(e.target.value)}
-            className="border p-2 mr-2"
+            className="border p-3 rounded-lg"
           >
             <option value="low">Low</option>
             <option value="medium">Medium</option>
@@ -201,124 +206,150 @@ const updateRequest = async () => {
           </select>
 
           <button
-           onClick={editId ? updateRequest : createRequest}
-  className="bg-green-500 text-white px-4"
->
-  {editId ? "Update" : "Submit"}
+            onClick={editId ? updateRequest : createRequest}
+            className="bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg font-semibold"
+          >
+            {editId ? "Update" : "Submit"}
           </button>
         </div>
-      )}
-
-      {/*  REQUEST LIST */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-
-        {requests.map((req) => (
-          <div key={req._id} className="bg-white p-5 rounded shadow">
-
-            <h2 className="font-bold">{req.title || "No Title"}</h2>
-<p>{req.issue || "No Issue Description"}</p>
-
-            <p className="mt-2">
-              Priority: <b>{req.priority}</b>
-            </p>
-
-            <p>Status: {req.status}</p>
-
-            <p>
-              
-  Assigned To: {req.assignedTo?.name || "Not Assigned"}
-</p>
-
-
-            {/* ADMIN / STAFF */}
-            {(role === "admin" || role === "staff") && (
-              <>
-                {/* Assign */}
-                {role === "admin" && (
-                  <div className="mt-2">
-                    <select
-  onChange={(e) => setSelectedStaff(e.target.value)}
-  className="border p-2"
->
-  <option value="">Select Staff</option>
-
-  {users
-    .filter(u => u.role?.toLowerCase() === "staff") 
-    .map(u => (
-      <option key={u._id} value={u._id}>
-        {u.name}
-      </option>
-    ))}
-</select>
-
-                    <button
-                      onClick={() => assignTask(req._id)}
-                      className="bg-blue-500 text-white px-2 ml-2"
-                    >
-                      Assign
-                    </button>
-                  </div>
-                )}
-
-                {/* Status */}
-                <div className="mt-2">
-                  <button
-                    onClick={() => updateStatus(req._id, "in-progress")}
-                    className="bg-yellow-500 text-white px-2 mr-2"
-                  >
-                    In Progress
-                  </button>
-
-                  <button
-                    onClick={() => updateStatus(req._id, "completed")}
-                    className="bg-green-500 text-white px-2"
-                  >
-                    Completed
-                  </button>
-                </div>
-
-                <button
-        onClick={() => deleteRequest(req._id)}
-        className="bg-red-500 text-white px-2 mt-2"
-      >
-        Delete
-      </button>
-    </>
-  )}
-
-                {/*  RESIDENT CONTROLS */}
-{role === "resident" && (
-  <div className="mt-2">
-
-    {/* EDIT (only if pending) */}
-    {req.status === "pending" && (
-      <button
-        onClick={() => {
-          setEditId(req._id);
-          setTitle(req.title);
-          setIssue(req.issue);
-          setPriority(req.priority);
-        }}
-        className="bg-blue-500 text-white px-2 mr-2"
-      >
-        Edit
-      </button>
+      </div>
     )}
-    
 
-                    {/* Delete */}
-                <button
-                  onClick={() => deleteRequest(req._id)}
-                  className="bg-red-500 text-white px-2 mt-2"
-                >
-                  Delete
-                </button>
+    {/* Cards */}
+    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+      {requests.map((req) => (
+        <div
+          key={req._id}
+          className="bg-white p-6 rounded-2xl shadow-md hover:shadow-xl transition"
+        >
+          <h2 className="text-xl font-bold text-gray-800 mb-2">
+            {req.title}
+          </h2>
+
+          <p className="text-gray-600 mb-4">{req.issue}</p>
+
+          {/* Priority */}
+          <p className="mb-2">
+            Priority:{" "}
+            <span
+              className={`px-3 py-1 rounded-full text-sm font-semibold ${
+                req.priority === "high"
+                  ? "bg-red-100 text-red-600"
+                  : req.priority === "medium"
+                  ? "bg-yellow-100 text-yellow-700"
+                  : "bg-green-100 text-green-600"
+              }`}
+            >
+              {req.priority}
+            </span>
+          </p>
+
+          {/* Status */}
+          <p className="mb-2">
+            Status:{" "}
+            <span
+              className={`font-semibold ${
+                req.status === "completed"
+                  ? "text-green-600"
+                  : req.status === "in-progress"
+                  ? "text-yellow-600"
+                  : "text-gray-500"
+              }`}
+            >
+              {req.status}
+            </span>
+          </p>
+
+          <p className="mb-4 text-sm text-gray-500">
+            Assigned To: {req.assignedTo?.name || "Not Assigned"}
+          </p>
+
+          {/* Admin / Staff */}
+          {(role === "admin" || role === "staff") && (
+            <>
+              {role === "admin" && (
+                <div className="mb-3">
+                  <select
+                    onChange={(e) => setSelectedStaff(e.target.value)}
+                    className="border p-2 rounded-lg w-full mb-2"
+                  >
+                    <option>Select Staff</option>
+
+                    {users
+                      .filter((u) => u.role === "staff")
+                      .map((u) => (
+                        <option key={u._id} value={u._id}>
+                          {u.name}
+                        </option>
+                      ))}
+                  </select>
+
+                  <button
+                    onClick={() => assignTask(req._id)}
+                    className="bg-blue-500 text-white px-4 py-2 rounded-lg w-full"
+                  >
+                    Assign Staff
+                  </button>
                 </div>
-)}
-</div>
-        ))}
+              )}
+
+              <div className="grid grid-cols-2 gap-2 mb-2">
+                <button
+                  onClick={() =>
+                    updateStatus(req._id, "in-progress")
+                  }
+                  className="bg-yellow-500 text-white py-2 rounded-lg"
+                >
+                  In Progress
+                </button>
+
+                <button
+                  onClick={() =>
+                    updateStatus(req._id, "completed")
+                  }
+                  className="bg-green-500 text-white py-2 rounded-lg"
+                >
+                  Completed
+                </button>
+              </div>
+
+              <button
+                onClick={() => deleteRequest(req._id)}
+                className="bg-red-500 text-white py-2 rounded-lg w-full"
+              >
+                Delete
+              </button>
+            </>
+          )}
+
+          {/* Resident Controls */}
+          {role === "resident" && (
+            <div className="grid grid-cols-2 gap-2">
+              {req.status === "pending" && (
+                <button
+                  onClick={() => {
+                    setEditId(req._id);
+                    setTitle(req.title);
+                    setIssue(req.issue);
+                    setPriority(req.priority);
+                  }}
+                  className="bg-blue-500 text-white py-2 rounded-lg"
+                >
+                  Edit
+                </button>
+              )}
+
+              <button
+                onClick={() => deleteRequest(req._id)}
+                className="bg-red-500 text-white py-2 rounded-lg"
+              >
+                Delete
+              </button>
+            </div>
+          )}
         </div>
-                
-    </Layout>
-  );
+      ))}
+    </div>
+  </Layout>
+);
 }

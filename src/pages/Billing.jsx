@@ -258,98 +258,94 @@ export default function Billing() {
           const remainingAmount = bill.remainingAmount;
 
           return (
-            <div key={bill._id} className="bg-white p-5 rounded-xl shadow">
-              <h2 className="text-lg font-bold">{bill.user?.name}</h2>
+           <div
+  key={bill._id}
+  className="bg-white p-6 rounded-2xl shadow hover:shadow-xl transition"
+>
+  <div className="flex justify-between items-center mb-4">
+    <h2 className="text-xl font-bold text-gray-800">
+      {bill.user?.name || "My Bill"}
+    </h2>
 
-              <p>Rent: ₹{bill.rent}</p>
-              <p>Utilities: ₹{bill.utilities}</p>
-              <p>Extra: ₹{bill.extraCharges}</p>
-              <p>Discount: ₹{bill.discount}</p>
-              <p>Late Fee: ₹{bill.lateFee}</p>
+    <span
+      className={`px-3 py-1 rounded-full text-sm font-semibold ${
+        bill.status === "paid"
+          ? "bg-green-100 text-green-600"
+          : "bg-red-100 text-red-600"
+      }`}
+    >
+      {bill.status}
+    </span>
+  </div>
 
-              <p className="font-semibold mt-2">Total: ₹{total}</p>
-              <p className="font-bold text-red-500">
-                Remaining: ₹{bill.remainingAmount}</p>
+  <div className="space-y-1 text-gray-600 text-sm">
+    <p>🏠 Rent: ₹{bill.rent}</p>
+    <p>💡 Utilities: ₹{bill.utilities}</p>
+    <p>➕ Extra Charges: ₹{bill.extraCharges}</p>
+    <p>🎁 Discount: ₹{bill.discount}</p>
+    <p>⚠️ Late Fee: ₹{bill.lateFee}</p>
+  </div>
 
-              <p className={`mt-2 ${bill.status === "paid" ? "text-green-500" : "text-red-500"}`}>
-                {bill.status}
-              </p>
+  <div className="border-t mt-4 pt-4">
+    <p className="text-lg font-bold text-gray-800">
+      Total: ₹{total}
+    </p>
 
-              {/* PAYMENT HISTORY */}
-              <div className="mt-3">
-                <h3 className="font-semibold">Payment History</h3>
+    <p className="text-red-500 font-bold">
+      Remaining: ₹{bill.remainingAmount}
+    </p>
+  </div>
 
-                {bill.paymentHistory?.length === 0 ? (
-                  <p className="text-gray-400">No payments yet</p>
-                ) : (
-                  bill.paymentHistory.map((p, i) => (
-                    <div key={i} className="bg-gray-100 p-2 mt-2 rounded">
-                      <p>₹{p.amount}</p>
-                      <p className="text-sm text-gray-500">
-                        {new Date(p.date).toLocaleString()}
-                      </p>
-                      <p className="text-xs text-blue-500">
-                        {p.transactionId}
-                      </p>
-                    </div>
-                  ))
-                )}
-              </div>
+  {/* Payment Buttons */}
+  {role === "resident" && bill.status !== "paid" && (
+    <>
+      <input
+        type="number"
+        placeholder="Enter amount"
+        value={amounts[bill._id] || ""}
+        onChange={(e) =>
+          setAmounts({
+            ...amounts,
+            [bill._id]: e.target.value,
+          })
+        }
+        className="border p-3 rounded-lg w-full mt-4"
+      />
 
-              {/* RESIDENT ACTIONS */}
-              {role === "resident" && bill.status !== "paid" && (
-                <>
-                  <input
-                    type="number"
-                    placeholder="Enter amount"
-                    value={amounts[bill._id]||""}
-                    onChange={(e) => 
-                      setAmounts({
-                      ...amounts,
-                      [bill._id]:e.target.value
+      <div className="grid grid-cols-1 gap-2 mt-3">
+        <button
+          onClick={() => payBill(bill._id)}
+          className="bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg"
+        >
+          Pay Full
+        </button>
 
-                    })
-                  }
-                    className="border p-2 mt-2 rounded w-full"
-                  />
+        <button
+          onClick={() => payInstallment(bill._id)}
+          className="bg-green-500 hover:bg-green-600 text-white py-2 rounded-lg"
+        >
+          Pay Partial
+        </button>
 
-                  <div className="flex gap-2 mt-2">
-                    <button
-                      onClick={() => payBill(bill._id)}
-                      className="bg-blue-500 text-white px-4 py-1 rounded"
-                    >
-                      Pay Full
-                    </button>
+        <button
+          onClick={() => handlePayment(bill._id)}
+          className="bg-purple-600 hover:bg-purple-700 text-white py-2 rounded-lg"
+        >
+          Pay Online
+        </button>
+      </div>
+    </>
+  )}
 
-                    <button
-                      onClick={() => payInstallment(bill._id)}
-                      className="bg-green-500 text-white px-4 py-1 rounded"
-                    >
-                      Pay Partial
-                    </button>
-
-                    {/* NEW RAZORPAY BUTTON */}
-      <button
-        onClick={() => handlePayment(bill._id)}
-        className="bg-purple-600 text-white px-4 py-1 rounded"
-      >
-        Pay Online 
-      </button>
-
-                  </div>
-                </>
-              )}
-
-              {/* ADMIN */}
-              {role === "admin" && (
-                <button
-                  onClick={() => deleteBill(bill._id)}
-                  className="bg-red-500 text-white px-4 py-1 mt-2 rounded"
-                >
-                  Delete
-                </button>
-              )}
-            </div>
+  {role === "admin" && (
+    <button
+      onClick={() => deleteBill(bill._id)}
+      className="bg-red-500 hover:bg-red-600 text-white w-full mt-4 py-2 rounded-lg"
+    >
+      Delete Bill
+    </button>
+  )}
+</div>
           );
         })}
       </div>
