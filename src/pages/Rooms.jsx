@@ -67,8 +67,46 @@ export default function Rooms() {
 
   //  CREATE ROOM
   const createRoom = async () => {
+
+    // Room Number validation
+  if (!roomNumber.trim()) {
+    toast.error("Room number is required");
+    return;
+  }
+
+  // Only letters + numbers
+  const roomRegex = /^[A-Za-z0-9]+$/;
+
+  if (!roomRegex.test(roomNumber)) {
+    toast.error("Room number must contain only letters and numbers");
+    return;
+  }
+
+  // Capacity required
+  if (!capacity) {
+    toast.error("Capacity is required");
+    return;
+  }
+
+  const cap = Number(capacity);
+
+  if (isNaN(cap)) {
+    toast.error("Capacity must be a number");
+    return;
+  }
+
+  if (cap <= 0) {
+    toast.error("Capacity must be greater than 0");
+    return;
+  }
+
+  if (cap > 20) {
+    toast.error("Capacity cannot exceed 20");
+    return;
+  }
+
     try {
-      await API.post("/rooms", { roomNumber, capacity });
+      await API.post("/rooms", { roomNumber, capacity:cap });
 
       toast.success("Room Created ");
       setRoomNumber("");
@@ -197,7 +235,14 @@ export default function Rooms() {
                 placeholder="Room Number"
                 value={roomNumber}
                 onChange={(e) => setRoomNumber(e.target.value)}
-                className="border p-3 rounded-lg focus:ring-2 focus:ring-blue-400"
+                className={`w-full p-3 rounded-lg border-2 outline-none
+  ${
+    roomNumber.length === 0
+      ? "border-gray-300 focus:border-blue-500"
+      : /^[0-9]+$/.test(roomNumber)
+      ? "border-green-500 focus:border-green-500"
+      : "border-red-500 focus:border-red-500"
+  }`}
               />
 
               <input
@@ -205,7 +250,14 @@ export default function Rooms() {
                 placeholder="Capacity"
                 value={capacity}
                 onChange={(e) => setCapacity(e.target.value)}
-                className="border p-3 rounded-lg focus:ring-2 focus:ring-blue-400"
+                className={`p-3 rounded-lg w-full border outline-none focus:ring-2
+  ${
+    capacity.length === 0
+      ? "border-gray-400 focus:ring-blue-200"
+      : Number(capacity) > 0
+      ? "border-green-500 focus:ring-green-200"
+      : "border-red-500 focus:ring-red-200"
+  }`}
               />
 
               <button

@@ -15,6 +15,7 @@ export default function Maintenance() {
   const [title, setTitle] = useState("");
   const [issue, setIssue] = useState("");
   const [priority, setPriority] = useState("low");
+  const [errors,setErrors]=useState({});
 
   // Assign
   const [selectedStaff, setSelectedStaff] = useState("");
@@ -33,10 +34,12 @@ const [editId, setEditId] = useState(null);
       res = await API.get("/maintenance/my");
     } else {
       res = await API.get("/maintenance");
+    }
       
       console.log("REQUESTS:",res.data);
 
       //  users 
+      if(role!=="resident"){
       const usersRes = await API.get("/users");
       console.log("USERS:", usersRes.data);
       setUsers(usersRes.data);
@@ -57,6 +60,31 @@ const [editId, setEditId] = useState(null);
 
   //  CREATE REQUEST (Resident)
   const createRequest = async () => {
+
+    let newErrors = {};
+
+  if (!title.trim()) {
+    newErrors.title = "Title required";
+  } else if (title.trim().length < 3) {
+    newErrors.title = "Minimum 3 characters";
+  }
+
+  if (!issue.trim()) {
+    newErrors.issue = "Issue required";
+  } else if (issue.trim().length < 5) {
+    newErrors.issue = "Minimum 5 characters";
+  }
+
+  if (!priority) {
+    newErrors.priority = "Select priority";
+  }
+
+  if (Object.keys(newErrors).length > 0) {
+    setErrors(newErrors);
+    toast.error(Object.values(newErrors)[0]);
+    return;
+  }
+
     try {
       await API.post("/maintenance", {
         title,
@@ -69,13 +97,16 @@ const [editId, setEditId] = useState(null);
       setTitle("");
       setIssue("");
       setPriority("low");
+      setErrors({});
 
-      fetchData();
+      await fetchData(); 
 
     } catch (err) {
       toast.error(err.response?.data?.message || "Creation failed");
+      
     }
-  };
+};
+
 
   //  DELETE
   const deleteRequest = (id) => {

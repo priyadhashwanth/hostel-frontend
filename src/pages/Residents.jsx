@@ -10,6 +10,7 @@ export default function Residents() {
 
   const [residents, setResidents] = useState([]);
   const [editId, setEditId] = useState(null);
+  const [search, setSearch] = useState("");
 
   const [form, setForm] = useState({
     name: "",
@@ -87,6 +88,54 @@ const storedUser=JSON.parse(localStorage.getItem("user"));
     }
   };
 
+  //delete resident
+
+   const deleteResident = async (id) => {
+  try {
+    await API.delete(`/users/${id}`);
+
+    toast.success("Resident deleted");
+
+    fetchResidents(); // or fetchData()
+
+  } catch (err) {
+    toast.error(err.response?.data?.message || "Delete failed");
+  }
+};
+
+const confirmDelete = (id) => {
+  toast.info(
+    <div>
+      <p className="mb-3 font-medium">
+        Delete this resident?
+      </p>
+
+      <div className="flex gap-2">
+        <button
+          onClick={() => {
+            deleteResident(id);
+            toast.dismiss();
+          }}
+          className="bg-red-500 text-white px-3 py-1 rounded"
+        >
+          Yes
+        </button>
+
+        <button
+          onClick={() => toast.dismiss()}
+          className="bg-gray-400 text-white px-3 py-1 rounded"
+        >
+          Cancel
+        </button>
+      </div>
+    </div>,
+    {
+      autoClose: false,
+      closeOnClick: false
+    }
+  );
+};
+
   return (
   <Layout>
     <h1 className="text-4xl font-bold text-gray-800 mb-2">
@@ -97,8 +146,24 @@ const storedUser=JSON.parse(localStorage.getItem("user"));
       Manage all hostel residents easily
     </p>
 
+    {/*search bar*/}
+
+            <input
+  type="text"
+  placeholder="Search resident by name or email..."
+  value={search}
+  onChange={(e) => setSearch(e.target.value)}
+  className="w-full md:w-96 border border-gray-300 p-3 rounded-lg mb-6 outline-none focus:ring-2 focus:ring-blue-400"
+/>
+
+
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      {residents.map((r) => (
+      {residents
+      .filter((r) =>
+      r.name?.toLowerCase().includes(search.toLowerCase()) ||
+      r.email?.toLowerCase().includes(search.toLowerCase())
+    )
+      .map((r) => (
         <div
           key={r._id}
           className="bg-white p-6 rounded-2xl shadow hover:shadow-xl transition"
@@ -131,17 +196,32 @@ const storedUser=JSON.parse(localStorage.getItem("user"));
                 </p>
               </div>
 
+              <div className="flex flex-wrap gap-4 mt-4"></div>
               {role === "admin" && (
+                <>
                 <button
                   onClick={() => handleEdit(r)}
-                  className="mt-5 bg-blue-500 hover:bg-blue-600 text-white px-5 py-2 rounded-lg"
+                  className="bg-blue-500 hover:bg-blue-600 text-white px-5 py-2 rounded-lg min-w-[170px]"
                 >
                   Edit Resident
                 </button>
+
+                <button
+  onClick={() => confirmDelete(r._id)}
+  className="bg-red-500 hover:bg-red-600 text-white px-5 py-2 rounded-lg min-w-[170px]"
+>
+  Delete Resident
+</button>
+
+</>
               )}
-            </>
+_
+           </>
           ) : (
             <>
+
+            
+            
               <input
                 value={form.name}
                 onChange={(e) =>
@@ -219,6 +299,9 @@ const storedUser=JSON.parse(localStorage.getItem("user"));
                 >
                   Cancel
                 </button>
+
+                
+
               </div>
             </>
           )}

@@ -62,6 +62,7 @@ export default function Billing() {
   const [extraCharges, setExtraCharges] = useState("");
   const [discount, setDiscount] = useState("");
   const [lateFee, setLateFee] = useState("");
+  const [errors,setErrors]=useState({});
 
   //  INSTALLMENT STATE
   const [amounts, setAmounts] = useState({});
@@ -91,6 +92,46 @@ export default function Billing() {
 
   //  CREATE BILL
   const createBill = async () => {
+    let newErrors = {};
+
+  // User required
+  if (!userId) {
+    newErrors.userId = "Select resident";
+  }
+
+  // Rent required
+  if (!rent.toString().trim()) {
+    newErrors.rent = "Rent required";
+  } else if (isNaN(rent) || Number(rent) <= 0) {
+    newErrors.rent = "Rent must be greater than 0";
+  }
+
+  // Utilities optional
+  if (utilities && (isNaN(utilities) || Number(utilities) < 0)) {
+    newErrors.utilities = "Invalid utilities";
+  }
+
+  // Extra Charges optional
+  if (extraCharges && (isNaN(extraCharges) || Number(extraCharges) < 0)) {
+    newErrors.extraCharges = "Invalid extra charges";
+  }
+
+  // Discount optional
+  if (discount && (isNaN(discount) || Number(discount) < 0)) {
+    newErrors.discount = "Invalid discount";
+  }
+
+  // Late Fee optional
+  if (lateFee && (isNaN(lateFee) || Number(lateFee) < 0)) {
+    newErrors.lateFee = "Invalid late fee";
+  }
+
+  if (Object.keys(newErrors).length > 0) {
+    setErrors(newErrors); // useState({})
+    toast.error(Object.values(newErrors)[0]);
+    return;
+  }
+
     try {
       await API.post("/bills", {
         userId,
@@ -120,10 +161,14 @@ export default function Billing() {
   const payBill = async (id) => {
     try {
       await API.put(`/bills/pay/${id}`);
+
       toast.success("Payment successful ");
-      fetchData();
+       await fetchData();
+       return;
+
     } catch (err) {
       toast.error(err.response?.data?.message || "Payment failed ");
+      return;
     }
   };
 

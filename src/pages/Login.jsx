@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../services/api";
 import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { FaEnvelope, FaLock, FaSignInAlt } from "react-icons/fa";
 
 export default function Login() {
@@ -11,7 +12,7 @@ export default function Login() {
 
   const navigate = useNavigate();
 
-  const handleLogin = async () => {
+  const handleLogin = async (e) => {
     e.preventDefault();
 
   // Empty check
@@ -35,7 +36,7 @@ export default function Login() {
   }
 
     try {
-      setLoading(true);
+      
 
       const res = await API.post("/auth/login", {
         email,

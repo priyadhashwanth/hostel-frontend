@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../services/api";
 import { toast } from "react-toastify";
+
 import {
   FaUser,
   FaEnvelope,
@@ -27,21 +28,54 @@ export default function Register() {
   const [emergencyPhone, setEmergencyPhone] = useState("");
   const [relation, setRelation] = useState("");
 
-  const handleRegister = async () => {
+  const handleRegister = async (e) => {
     // Validation
-    if (!name.trim()) return toast.error("Name required");
+    e.preventDefault();
 
-    if (!email.includes("@"))
-      return toast.error("Enter valid email");
+    // Empty checks
+    if (
+      !name.trim() ||
+      !email.trim() ||
+      !password.trim() ||
+      !role.trim()
+    ) {
+      toast.error("Name, Email, Password and Role are required");
+      return;
+    }
 
-    if (password.length < 6)
-      return toast.error("Password must be minimum 6 characters");
+    // Name length
+    if (name.trim().length < 3) {
+      toast.error("Name must be at least 3 characters");
+      return;
+    }
 
-    if (role === "resident" && phone.length !== 10)
-      return toast.error("Phone must be 10 digits");
+    // Email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      toast.error("Enter a valid email address");
+      return;
+    }
+
+    // Password
+    if (password.length < 6) {
+      toast.error("Password must be at least 6 characters");
+      return;
+    }
+
+    // Phone optional but if entered validate
+    const phoneRegex = /^[0-9]{10}$/;
+    if (phone && !phoneRegex.test(phone)) {
+      toast.error("Phone must be 10 digits");
+      return;
+    }
+
+    if (emergencyPhone && !phoneRegex.test(emergencyPhone)) {
+      toast.error("Emergency phone must be 10 digits");
+      return;
+    }
 
     try {
-      await API.post("/auth/register", {
+      const res = await API.post("/auth/register", {
         name,
         email,
         password,
@@ -83,50 +117,108 @@ export default function Register() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-          {/* Name */}
+         {/* Name */}
           <div className="relative">
             <FaUser className="absolute top-4 left-3 text-gray-400" />
+
             <input
               type="text"
               placeholder="Full Name"
-              className="w-full border p-3 pl-10 rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
+              value={name}
               onChange={(e) => setName(e.target.value)}
+              className={`w-full p-3 pl-10 rounded-lg border outline-none
+              ${
+                name.length === 0
+                  ? "border-gray-300"
+                  : name.trim().length >= 3
+                  ? "border-green-500"
+                  : "border-red-500"
+              }`}
             />
+
+            {name && name.trim().length < 3 && (
+              <p className="text-red-500 text-sm mt-1">
+                Minimum 3 characters
+              </p>
+            )}
           </div>
 
           {/* Email */}
           <div className="relative">
             <FaEnvelope className="absolute top-4 left-3 text-gray-400" />
+
             <input
               type="email"
               placeholder="Email"
-              className="w-full border p-3 pl-10 rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
+              value={email}
               onChange={(e) => setEmail(e.target.value)}
+              className={`w-full p-3 pl-10 rounded-lg border outline-none
+              ${
+                email.length === 0
+                  ? "border-gray-300"
+                  : emailRegex.test(email)
+                  ? "border-green-500"
+                  : "border-red-500"
+              }`}
             />
+
+            {email &&
+              !emailRegex.test(email) && (
+                <p className="text-red-500 text-sm mt-1">
+                  Invalid email
+                </p>
+              )}
           </div>
 
           {/* Password */}
           <div className="relative">
             <FaLock className="absolute top-4 left-3 text-gray-400" />
+
             <input
               type="password"
               placeholder="Password"
-              className="w-full border p-3 pl-10 rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
-              onChange={(e) => setPassword(e.target.value)}
+              value={password}
+              onChange={(e) =>
+                setPassword(e.target.value)
+              }
+              className={`w-full p-3 pl-10 rounded-lg border outline-none
+              ${
+                password.length === 0
+                  ? "border-gray-300"
+                  : password.length >= 6
+                  ? "border-green-500"
+                  : "border-red-500"
+              }`}
             />
+
+            {password &&
+              password.length < 6 && (
+                <p className="text-red-500 text-sm mt-1">
+                  Minimum 6 characters
+                </p>
+              )}
           </div>
 
           {/* Role */}
           <div className="relative">
             <FaUsers className="absolute top-4 left-3 text-gray-400" />
+
             <select
               value={role}
-              onChange={(e) => setRole(e.target.value)}
-              className="w-full border p-3 pl-10 rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
+              onChange={(e) =>
+                setRole(e.target.value)
+              }
+              className="w-full border p-3 pl-10 rounded-lg outline-none"
             >
-              <option value="resident">Resident</option>
-              <option value="staff">Staff</option>
-              <option value="admin">Admin</option>
+              <option value="resident">
+                Resident
+              </option>
+              <option value="staff">
+                Staff
+              </option>
+              <option value="admin">
+                Admin
+              </option>
             </select>
           </div>
 
@@ -136,55 +228,113 @@ export default function Register() {
               {/* Phone */}
               <div className="relative">
                 <FaPhone className="absolute top-4 left-3 text-gray-400" />
+
                 <input
                   type="text"
                   placeholder="Phone"
-                  className="w-full border p-3 pl-10 rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
-                  onChange={(e) => setPhone(e.target.value)}
+                  value={phone}
+                  onChange={(e) =>
+                    setPhone(e.target.value)
+                  }
+                  className={`w-full p-3 pl-10 rounded-lg border outline-none
+                  ${
+                    phone.length === 0
+                      ? "border-gray-300"
+                      : /^[0-9]{10}$/.test(phone)
+                      ? "border-green-500"
+                      : "border-red-500"
+                  }`}
                 />
+
+                {phone &&
+                  !/^[0-9]{10}$/.test(phone) && (
+                    <p className="text-red-500 text-sm mt-1">
+                      Enter valid 10 digit number
+                    </p>
+                  )}
               </div>
 
               {/* Address */}
               <div className="relative">
                 <FaMapMarkerAlt className="absolute top-4 left-3 text-gray-400" />
+
                 <input
                   type="text"
                   placeholder="Address"
-                  className="w-full border p-3 pl-10 rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
-                  onChange={(e) => setAddress(e.target.value)}
+                  value={address}
+                  onChange={(e) =>
+                    setAddress(e.target.value)
+                  }
+                  className="w-full border p-3 pl-10 rounded-lg outline-none"
                 />
               </div>
 
               {/* Emergency Name */}
               <div className="relative">
                 <FaUser className="absolute top-4 left-3 text-gray-400" />
+
                 <input
                   type="text"
                   placeholder="Emergency Name"
-                  className="w-full border p-3 pl-10 rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
-                  onChange={(e) => setEmergencyName(e.target.value)}
+                  value={emergencyName}
+                  onChange={(e) =>
+                    setEmergencyName(
+                      e.target.value
+                    )
+                  }
+                  className="w-full border p-3 pl-10 rounded-lg outline-none"
                 />
               </div>
 
               {/* Emergency Phone */}
               <div className="relative">
                 <FaPhone className="absolute top-4 left-3 text-gray-400" />
+
                 <input
                   type="text"
                   placeholder="Emergency Phone"
-                  className="w-full border p-3 pl-10 rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
-                  onChange={(e) => setEmergencyPhone(e.target.value)}
+                  value={emergencyPhone}
+                  onChange={(e) =>
+                    setEmergencyPhone(
+                      e.target.value
+                    )
+                  }
+                  className={`w-full p-3 pl-10 rounded-lg border outline-none
+                  ${
+                    emergencyPhone.length === 0
+                      ? "border-gray-300"
+                      : /^[0-9]{10}$/.test(
+                          emergencyPhone
+                        )
+                      ? "border-green-500"
+                      : "border-red-500"
+                  }`}
                 />
+
+                {emergencyPhone &&
+                  !/^[0-9]{10}$/.test(
+                    emergencyPhone
+                  ) && (
+                    <p className="text-red-500 text-sm mt-1">
+                      Invalid emergency number
+                    </p>
+                  )}
               </div>
 
               {/* Relation */}
               <div className="relative md:col-span-2">
                 <FaUsers className="absolute top-4 left-3 text-gray-400" />
+
                 <input
                   type="text"
                   placeholder="Relation"
-                  className="w-full border p-3 pl-10 rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
-                  onChange={(e) => setRelation(e.target.value)}
+                  value={relation}
+                  onChange={(e) =>
+                    setRelation(
+                      e.target.value
+                    )
+                  }
+                  className="w-full border p-3 pl-10 rounded-lg outline-none"
                 />
               </div>
             </>
