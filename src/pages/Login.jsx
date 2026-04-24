@@ -36,6 +36,7 @@ export default function Login() {
   }
 
     try {
+      setLoading(true);
       
 
       const res = await API.post("/auth/login", {
@@ -110,6 +111,15 @@ export default function Login() {
             />
           </div>
         </div>
+
+        {/* forgot password*/}
+
+        <p
+  onClick={() => navigate("/forgot-password")}
+  className="text-blue-500 cursor-pointer text-sm mt-2 hover:underline"
+>
+  Forgot Password?
+</p>
 
         {/* Button */}
         <button

@@ -9,6 +9,8 @@ import Billing from "./pages/Billing";
 import Reports from "./pages/Reports";
 import Notifications from "./pages/Notifications";
 import Residents from "./pages/Residents";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 
 function App() {
   return (
@@ -25,6 +27,9 @@ function App() {
           <Route path="/reports" element={<Reports />} /> 
            <Route path="/notifications" element={<Notifications />} /> 
            <Route path="/residents" element={<Residents/>} />
+           <Route path="/forgot-password" element={<ForgotPassword />} />
+           <Route path="/reset-password/:token" element={<ResetPassword />} />
+
 
 
       </Routes>
