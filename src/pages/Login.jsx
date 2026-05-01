@@ -54,7 +54,11 @@ export default function Login() {
 
       setTimeout(() => {
         navigate("/dashboard");
+       
+
       }, 1000);
+
+      
     } catch (error) {
       toast.error(error.response?.data?.message || "Login failed");
     } finally {

@@ -1,34 +1,30 @@
 import { Navigate } from "react-router-dom";
 import { getUser } from "../utils/auth";
 
-export default function PrivateRoute({ children, role }) {
+export default function PrivateRoute({ children, allowedRoles }) {
   const user = getUser();
 
-
-  // not logged in
+  // Not logged in
   if (!user) {
     return <Navigate to="/login" />;
   }
 
-  // if no role required → allow
-  if (!role) {
-    return children;
-  }
-
-  // normalize role (avoid case issues)
   const userRole = (user.role || "").toLowerCase();
-  const requiredRole = role.toLowerCase();
 
-  // allow admin everywhere
-  if (userRole === "admin") {
+  // If no role restriction
+  if (!allowedRoles || allowedRoles.length === 0) {
     return children;
   }
 
-  // role match
-  if (userRole === requiredRole) {
-    return children;
+  // Normalize roles
+  const normalizedRoles = allowedRoles.map(r => r.toLowerCase());
+
+  // Check access
+  if (!normalizedRoles.includes(userRole)) {
+    return <Navigate to="/unauthorized" />;
   }
 
-  return <h1>Access Denied</h1>;
+  if(userRole==="admin"){
+  return children;
+  }
 }
-

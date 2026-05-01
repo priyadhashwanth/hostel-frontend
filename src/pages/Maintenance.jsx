@@ -10,6 +10,8 @@ export default function Maintenance() {
 
   const [requests, setRequests] = useState([]);
   const [users, setUsers] = useState([]);
+  const [userData, setUserData] = useState(null);
+  const [loadingUser, setLoadingUser] = useState(true);
 
   // Create
   const [title, setTitle] = useState("");
@@ -31,9 +33,23 @@ const [editId, setEditId] = useState(null);
     const role =getUser()?.role;
 
     if (role?.toLowerCase()==="resident") {
+      try{
+
+      // ✅ GET USER PROFILE (ROOM INFO)
+  const profileRes = await API.get("/users/me");
+  setUserData(profileRes.data);
+
+  } catch (err) {
+    console.log("User fetch error:", err);
+    setUserData(null); // prevent infinite loading
+  } finally {
+    setLoadingUser(false); // ✅ IMPORTANT
+  }
+
       res = await API.get("/maintenance/my");
     } else {
       res = await API.get("/maintenance");
+      setLoadingUser(false);
     }
       
       console.log("REQUESTS:",res.data);
@@ -201,49 +217,58 @@ const updateRequest = async () => {
   return (
   <Layout>
     <h1 className="text-4xl font-bold text-gray-800 mb-6">
-      🛠 Maintenance Requests
+      🛠️ Maintenance Requests
     </h1>
 
     {/* Create Form */}
     {role === "resident" && (
-      <div className="bg-white p-6 rounded-2xl shadow-md mb-8">
-        <h2 className="text-xl font-semibold mb-4">
-          {editId ? "Edit Request" : "Create Request"}
-        </h2>
-
-        <div className="grid md:grid-cols-4 gap-4">
-          <input
-            placeholder="Title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            className="border p-3 rounded-lg"
-          />
-
-          <input
-            placeholder="Issue Description"
-            value={issue}
-            onChange={(e) => setIssue(e.target.value)}
-            className="border p-3 rounded-lg"
-          />
-
-          <select
-            value={priority}
-            onChange={(e) => setPriority(e.target.value)}
-            className="border p-3 rounded-lg"
-          >
-            <option value="low">Low</option>
-            <option value="medium">Medium</option>
-            <option value="high">High</option>
-          </select>
-
-          <button
-            onClick={editId ? updateRequest : createRequest}
-            className="bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg font-semibold"
-          >
-            {editId ? "Update" : "Submit"}
-          </button>
+      loadingUser?(
+        <p className="text-gray-500">Checking room...</p>
+      ):!userData?.room ? (
+        <div className="bg-red-100 text-red-600 p-4 rounded-lg mb-6">
+          ❌ You must be assigned a room to raise a maintenance request.
         </div>
-      </div>
+      ) : (
+        <div className="bg-white p-6 rounded-2xl shadow-md mb-8">
+          
+          <h2 className="text-xl font-semibold mb-4">
+            {editId ? "Edit Request" : "Create Request"}
+          </h2>
+
+          <div className="grid md:grid-cols-4 gap-4">
+            <input
+              placeholder="Title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="border p-3 rounded-lg"
+            />
+
+            <input
+              placeholder="Issue Description"
+              value={issue}
+              onChange={(e) => setIssue(e.target.value)}
+              className="border p-3 rounded-lg"
+            />
+
+            <select
+              value={priority}
+              onChange={(e) => setPriority(e.target.value)}
+              className="border p-3 rounded-lg"
+            >
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+            </select>
+
+            <button
+              onClick={editId ? updateRequest : createRequest}
+              className="bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg font-semibold"
+            >
+              {editId ? "Update" : "Submit"}
+            </button>
+          </div>
+        </div>
+      )
     )}
 
     {/* Cards */}
@@ -258,6 +283,10 @@ const updateRequest = async () => {
           </h2>
 
           <p className="text-gray-600 mb-4">{req.issue}</p>
+
+          <p className="text-sm text-blue-600 mb-2 font-medium">
+            🏠 Room: {req.room?.roomNumber || "N/A"}
+          </p>
 
           {/* Priority */}
           <p className="mb-2">
@@ -326,18 +355,14 @@ const updateRequest = async () => {
 
               <div className="grid grid-cols-2 gap-2 mb-2">
                 <button
-                  onClick={() =>
-                    updateStatus(req._id, "in-progress")
-                  }
+                  onClick={() => updateStatus(req._id, "in-progress")}
                   className="bg-yellow-500 text-white py-2 rounded-lg"
                 >
                   In Progress
                 </button>
 
                 <button
-                  onClick={() =>
-                    updateStatus(req._id, "completed")
-                  }
+                  onClick={() => updateStatus(req._id, "completed")}
                   className="bg-green-500 text-white py-2 rounded-lg"
                 >
                   Completed

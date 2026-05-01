@@ -11,6 +11,9 @@ import Notifications from "./pages/Notifications";
 import Residents from "./pages/Residents";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
+import PrivateRoute from "./components/PrivateRoute";
+
+
 
 function App() {
   return (
@@ -20,7 +23,9 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+
         <Route path="/dashboard" element={<Dashboard />} />
+         
         <Route path="/rooms" element={<Rooms />} />
           <Route path="/maintenance" element={<Maintenance/>} />
           <Route path="/billing" element={<Billing />} />

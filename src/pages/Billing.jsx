@@ -290,7 +290,7 @@ export default function Billing() {
       {/* BILL GRID */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {bills.map((bill) => {
-          const total =
+          const totalAmount =
             (bill.rent || 0) +
             (bill.utilities || 0) +
             (bill.extraCharges || 0) -
@@ -333,7 +333,7 @@ export default function Billing() {
 
   <div className="border-t mt-4 pt-4">
     <p className="text-lg font-bold text-gray-800">
-      Total: ₹{total}
+      Total: ₹{totalAmount}
     </p>
 
     <p className="text-red-500 font-bold">

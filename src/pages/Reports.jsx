@@ -70,16 +70,16 @@ export default function Reports() {
   const revenueData = [
     {
       name: "Revenue",
-      value: report.revenue / 1000,
+      value: report.revenue 
     },
     {
       name: "Expenses",
-      value: report.totalExpenses / 1000,
+      value: report.totalExpenses 
     },
     {
       name: "Profit",
-      value: report.profit / 1000,
-    },
+      value: report.profit 
+    }
   ];
 
   //  Pie chart data (safe)
@@ -114,8 +114,18 @@ export default function Reports() {
   margin={{ top: 20, right: 30, left: 40, bottom: 20 }}
 >
   <XAxis dataKey="name" />
-  <YAxis tickFormatter={(value) => `₹${value/100000}L`} />
-  <Tooltip formatter={(value) => `₹${value}`} />
+
+<YAxis 
+  tickFormatter={(value) =>
+    `₹${new Intl.NumberFormat("en-IN").format(value)}`
+  }
+/>
+
+<Tooltip 
+  formatter={(value) =>
+    `₹${new Intl.NumberFormat("en-IN").format(value)}`
+  }
+/>
   <Bar dataKey="value" fill="#3b82f6" barSize={60} />
 </BarChart>
 
