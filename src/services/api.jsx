@@ -1,7 +1,8 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "https://hostel-backend-sxqd.onrender.com/api"
+  baseURL: "https://hostel-backend-sxqd.onrender.com/api",
+  timeout:30000
 });
 
 // ATTACH token automatically
