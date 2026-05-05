@@ -13,57 +13,53 @@ export default function Login() {
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
-    e.preventDefault();
+    e.preventDefault(); // ✅ important
 
-  // Empty check
-  if (!email.trim() || !password.trim()) {
-    toast.error("Email and Password are required");
-    return;
-  }
+    // Validation
+    if (!email.trim() || !password.trim()) {
+      toast.error("Email and Password are required");
+      return;
+    }
 
-  // Email format check
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      toast.error("Enter a valid email address");
+      return;
+    }
 
-  if (!emailRegex.test(email)) {
-    toast.error("Enter a valid email address");
-    return;
-  }
-
-  // Password length
-  if (password.length < 6) {
-    toast.error("Password must be at least 6 characters");
-    return;
-  }
+    if (password.length < 6) {
+      toast.error("Password must be at least 6 characters");
+      return;
+    }
 
     try {
       setLoading(true);
-      
 
       const res = await API.post("/auth/login", {
         email,
         password,
       });
 
-        console.log("FULL RESPONSE:", res);         // 👈 ADD THIS
-    console.log("DATA:", res.data);             // 👈 ADD THIS
+      // 🔍 DEBUG (very important)
+      console.log("FULL RESPONSE:", res);
+      console.log("DATA:", res.data);
 
-      // Store token
+      // ✅ STORE TOKEN
       localStorage.setItem("token", res.data.token);
 
-      // Store user
+      // ✅ STORE USER
       localStorage.setItem("user", JSON.stringify(res.data.user));
 
       toast.success("Login successful");
 
       setTimeout(() => {
         navigate("/dashboard");
-       
-
       }, 1000);
 
-      
     } catch (error) {
-      console.log("ERROR:", error.response?.data);
+      console.log("FULL ERROR:", error); // ✅ improved debug
+      console.log("SERVER ERROR:", error.response?.data);
+
       toast.error(error.response?.data?.message || "Login failed");
     } finally {
       setLoading(false);
@@ -84,60 +80,65 @@ export default function Login() {
           </p>
         </div>
 
-        {/* Email */}
-        <div className="mb-5">
-          <label className="block text-left text-sm font-medium text-gray-700 mb-1">
-            Email
-          </label>
+        {/* ✅ FORM START */}
+        <form onSubmit={handleLogin}>
 
-          <div className="flex items-center border rounded-lg px-3">
-            <FaEnvelope className="text-gray-400" />
-            <input
-              type="email"
-              placeholder="Enter email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-3 py-3 outline-none"
-            />
+          {/* Email */}
+          <div className="mb-5">
+            <label className="block text-left text-sm font-medium text-gray-700 mb-1">
+              Email
+            </label>
+
+            <div className="flex items-center border rounded-lg px-3">
+              <FaEnvelope className="text-gray-400" />
+              <input
+                type="email"
+                placeholder="Enter email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full px-3 py-3 outline-none"
+              />
+            </div>
           </div>
-        </div>
 
-        {/* Password */}
-        <div className="mb-6">
-          <label className="block text-left text-sm font-medium text-gray-700 mb-1">
-            Password
-          </label>
+          {/* Password */}
+          <div className="mb-6">
+            <label className="block text-left text-sm font-medium text-gray-700 mb-1">
+              Password
+            </label>
 
-          <div className="flex items-center border rounded-lg px-3">
-            <FaLock className="text-gray-400" />
-            <input
-              type="password"
-              placeholder="Enter password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-3 py-3 outline-none"
-            />
+            <div className="flex items-center border rounded-lg px-3">
+              <FaLock className="text-gray-400" />
+              <input
+                type="password"
+                placeholder="Enter password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full px-3 py-3 outline-none"
+              />
+            </div>
           </div>
-        </div>
 
-        {/* forgot password*/}
+          {/* Forgot password */}
+          <p
+            onClick={() => navigate("/forgot-password")}
+            className="text-blue-500 cursor-pointer text-sm mt-2 hover:underline"
+          >
+            Forgot Password?
+          </p>
 
-        <p
-  onClick={() => navigate("/forgot-password")}
-  className="text-blue-500 cursor-pointer text-sm mt-2 hover:underline"
->
-  Forgot Password?
-</p>
+          {/* ✅ BUTTON FIXED */}
+          <button
+            type="submit" // ✅ important
+            disabled={loading}
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition duration-300 flex justify-center items-center gap-2"
+          >
+            <FaSignInAlt />
+            {loading ? "Logging in..." : "Login"}
+          </button>
 
-        {/* Button */}
-        <button
-          onClick={handleLogin}
-          disabled={loading}
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition duration-300 flex justify-center items-center gap-2"
-        >
-          <FaSignInAlt />
-          {loading ? "Logging in..." : "Login"}
-        </button>
+        </form>
+        {/* ✅ FORM END */}
 
         {/* Register */}
         <p
