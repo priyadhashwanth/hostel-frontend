@@ -44,6 +44,9 @@ export default function Login() {
         password,
       });
 
+        console.log("FULL RESPONSE:", res);         // 👈 ADD THIS
+    console.log("DATA:", res.data);             // 👈 ADD THIS
+
       // Store token
       localStorage.setItem("token", res.data.token);
 
@@ -60,6 +63,7 @@ export default function Login() {
 
       
     } catch (error) {
+      console.log("ERROR:", error.response?.data);
       toast.error(error.response?.data?.message || "Login failed");
     } finally {
       setLoading(false);
