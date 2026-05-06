@@ -33,4 +33,17 @@ USER INTERFACE:
       
       * clear navigation, easy access to information, and a streamlined workflow for hostel administrators and staff.
 
+      ADMIN
+
+      EMAIL:priyadharshiniadmin@gmail.com
+      PASSWORD:123456
+
+      RESIDENT
+
+      EMAIL:priyadharshini8030@gmail.com
+      PASSWORD:123456
+
+      EMAIL:priya12345@gmail.com
+      PASSWORD:priya14
+
 
