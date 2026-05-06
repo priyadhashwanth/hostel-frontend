@@ -50,6 +50,8 @@ export default function Login() {
       // ✅ STORE USER
       localStorage.setItem("user", JSON.stringify(res.data.user));
 
+      localStorage.setItem("role",res.data.user.role);
+
       toast.success("Login successful");
 
       setTimeout(() => {
