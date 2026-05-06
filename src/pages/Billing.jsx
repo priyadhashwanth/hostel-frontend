@@ -252,6 +252,47 @@ export default function Billing() {
         {role === "resident" ? "My Bills" : "Billing Management"}
       </h1>
 
+      <h1 className="text-3xl font-bold mb-6">
+  {role === "resident" ? "💳 My Bills" : "Billing Management"}
+</h1>
+
+{/* RESIDENT SECTION */}
+{role === "resident" && (
+  <>
+    {bills.length === 0 ? (
+
+      <div className="bg-yellow-100 text-yellow-700 p-4 rounded-lg mb-6">
+        ⚠️ No bills generated yet.
+      </div>
+
+    ) : (
+
+      <div className="space-y-4 mb-6">
+        {bills.map((bill) => (
+          <div
+            key={bill._id}
+            className="bg-white shadow-md rounded-xl p-5"
+          >
+            <p>
+              <strong>Amount:</strong> ₹{bill.totalAmount}
+            </p>
+
+            <p>
+              <strong>Status:</strong> {bill.status}
+            </p>
+
+            <p>
+              <strong>Due Date:</strong>{" "}
+              {new Date(bill.dueDate).toLocaleDateString()}
+            </p>
+          </div>
+        ))}
+      </div>
+
+    )}
+  </>
+)}
+
       {/* ADMIN CREATE */}
       {role === "admin" && (
         <div className="bg-white p-6 rounded-xl shadow mb-6">

@@ -31,13 +31,15 @@ export default function Rooms() {
   const [editRoomId, setEditRoomId] = useState(null);
   const [editCapacity, setEditCapacity] = useState("");
 
+   const user = JSON.parse(localStorage.getItem("user"));
+
   //  FETCH DATA (FIXED)
   const fetchData = async () => {
     try {
       
         const res = await API.get("/rooms");
         if(role ==="resident"){
-          const user = JSON.parse(localStorage.getItem("user"));
+          //const user = JSON.parse(localStorage.getItem("user"));
 
           const myRoom = res.data.find(room =>
         room.occupants?.some(u => u._id === user._id)
@@ -221,6 +223,34 @@ export default function Rooms() {
       <h1 className="text-4xl font-bold text-gray-800 mb-6">
         {role === "resident" ? "🏠 My Room" : "Room Management"}
       </h1>
+
+
+      
+
+{/* RESIDENT SECTION */}
+{role === "resident" && (
+  <>
+    {!user?.room ? (
+
+      <div className="bg-red-100 text-red-700 p-4 rounded-lg mb-6">
+        ❌ Room not assigned yet. Please contact admin.
+      </div>
+
+    ) : (
+
+      <div className="bg-white shadow-md rounded-xl p-6 mb-6">
+        <h2 className="text-2xl font-bold mb-4">
+          Room Details
+        </h2>
+
+        <p>
+          <strong>Room Number:</strong> {user.room.roomNumber}
+        </p>
+      </div>
+
+    )}
+  </>
+)}
 
       {/* ADMIN SECTION */}
       {role === "admin" && (
