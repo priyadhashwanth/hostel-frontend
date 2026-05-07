@@ -230,7 +230,7 @@ export default function Rooms() {
 {/* RESIDENT SECTION */}
 {role === "resident" && (
   <>
-    {!user?.room ? (
+    {rooms.length === 0 ? (
 
       <div className="bg-red-100 text-red-700 p-4 rounded-lg mb-6">
         ❌ Room not assigned yet. Please contact admin.
@@ -238,15 +238,45 @@ export default function Rooms() {
 
     ) : (
 
-      <div className="bg-white shadow-md rounded-xl p-6 mb-6">
-        <h2 className="text-2xl font-bold mb-4">
-          Room Details
-        </h2>
+      rooms.map((room) => (
+        <div
+          key={room._id}
+          className="bg-white rounded-2xl shadow-md p-6 mb-6"
+        >
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-3xl font-bold text-gray-800">
+              🏠 Room {room.roomNumber}
+            </h2>
 
-        <p>
-          <strong>Room Number:</strong> {user.room.roomNumber}
-        </p>
-      </div>
+            <span
+              className={`px-4 py-1 rounded-full text-sm font-semibold ${
+                room.occupants?.length >= room.capacity
+                  ? "bg-red-100 text-red-600"
+                  : "bg-green-100 text-green-600"
+              }`}
+            >
+              {room.occupants?.length >= room.capacity
+                ? "Full"
+                : "Available"}
+            </span>
+          </div>
+
+          <p className="text-gray-600 mb-4">
+            👥 Capacity: {room.capacity}
+          </p>
+
+          <h3 className="font-bold mb-2">Occupants</h3>
+
+          {room.occupants?.map((o) => (
+            <div
+              key={o._id}
+              className="bg-gray-100 rounded-lg p-3 mb-2"
+            >
+              {o.name}
+            </div>
+          ))}
+        </div>
+      ))
 
     )}
   </>
@@ -341,6 +371,7 @@ export default function Rooms() {
       )}
 
       {/* ROOM CARDS */}
+      {role==="admin" && (
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
         {rooms.map((room) => {
           const isFull =
@@ -444,6 +475,8 @@ export default function Rooms() {
           );
         })}
       </div>
+    )}
     </Layout>
+
   );
 }

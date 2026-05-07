@@ -252,9 +252,7 @@ export default function Billing() {
         {role === "resident" ? "My Bills" : "Billing Management"}
       </h1>
 
-      <h1 className="text-3xl font-bold mb-6">
-  {role === "resident" ? "💳 My Bills" : "Billing Management"}
-</h1>
+      
 
 {/* RESIDENT SECTION */}
 {role === "resident" && (
@@ -283,7 +281,9 @@ export default function Billing() {
 
             <p>
               <strong>Due Date:</strong>{" "}
-              {new Date(bill.dueDate).toLocaleDateString()}
+              {bill.dueDate
+  ? new Date(bill.dueDate).toLocaleDateString()
+  : "Not Assigned"}
             </p>
           </div>
         ))}
@@ -369,7 +369,9 @@ export default function Billing() {
     <p>💡 Utilities: ₹{bill.utilities}</p>
     <p>➕ Extra Charges: ₹{bill.extraCharges}</p>
     <p>🎁 Discount: ₹{bill.discount}</p>
+    {bill.lateFee > 0 && (
     <p>⚠️ Late Fee: ₹{bill.lateFee}</p>
+    )}
   </div>
 
   <div className="border-t mt-4 pt-4">
@@ -384,43 +386,49 @@ export default function Billing() {
 
   {/* Payment Buttons */}
   {role === "resident" && bill.status !== "paid" && (
-    <>
-      <input
-        type="number"
-        placeholder="Enter amount"
-        value={amounts[bill._id] || ""}
-        onChange={(e) =>
-          setAmounts({
-            ...amounts,
-            [bill._id]: e.target.value,
-          })
-        }
-        className="border p-3 rounded-lg w-full mt-4"
-      />
+    
 
       <div className="grid grid-cols-1 gap-2 mt-3">
-        <button
-          onClick={() => payBill(bill._id)}
-          className="bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg"
-        >
-          Pay Full
-        </button>
+        
+        {/* Pay Full */}
+<button
+  onClick={() => payBill(bill._id)}
+  className="bg-blue-500 text-white py-2 rounded-lg w-full mb-3"
+>
+  Pay Full
+</button>
 
-        <button
-          onClick={() => payInstallment(bill._id)}
-          className="bg-green-500 hover:bg-green-600 text-white py-2 rounded-lg"
-        >
-          Pay Partial
-        </button>
+{/* Partial Payment Section */}
+<div className="space-y-2">
+  <input
+  type="number"
+  placeholder="Enter partial amount"
+  value={amounts[bill._id] || ""}
+  onChange={(e) =>
+    setAmounts({
+      ...amounts,
+      [bill._id]: e.target.value,
+    })
+  }
+  className="border p-2 rounded-lg w-full"
+/>
 
-        <button
-          onClick={() => handlePayment(bill._id)}
-          className="bg-purple-600 hover:bg-purple-700 text-white py-2 rounded-lg"
-        >
-          Pay Online
-        </button>
-      </div>
-    </>
+  <button
+    onClick={() => payInstallment(bill._id)}
+    className="bg-green-500 text-white py-2 rounded-lg w-full"
+  >
+    Pay Partial
+  </button>
+</div>
+
+{/* Online Payment */}
+<button
+  onClick={() => handlePayment(bill._id)}
+  className="bg-purple-500 text-white py-2 rounded-lg w-full mt-3"
+>
+  Pay Online
+</button>
+</div>
   )}
 
   {role === "admin" && (

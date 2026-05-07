@@ -272,97 +272,120 @@ const updateRequest = async () => {
     )}
 
     {/* Cards */}
-    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-      {requests.map((req) => (
-        <div
-          key={req._id}
-          className="bg-white p-6 rounded-2xl shadow-md hover:shadow-xl transition"
+<div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+  {requests.map((req) => (
+    <div
+      key={req._id}
+      className="bg-white p-6 rounded-2xl shadow-md hover:shadow-xl transition"
+    >
+      <h2 className="text-xl font-bold text-gray-800 mb-2">
+        {req.title}
+      </h2>
+
+      <p className="text-gray-600 mb-4">{req.issue}</p>
+
+      <p className="text-sm text-blue-600 mb-2 font-medium">
+        🏠 Room: {req.room?.roomNumber || "N/A"}
+      </p>
+
+      {/* Priority */}
+      <p className="mb-2">
+        Priority:{" "}
+        <span
+          className={`px-3 py-1 rounded-full text-sm font-semibold ${
+            req.priority === "high"
+              ? "bg-red-100 text-red-600"
+              : req.priority === "medium"
+              ? "bg-yellow-100 text-yellow-700"
+              : "bg-green-100 text-green-600"
+          }`}
         >
-          <h2 className="text-xl font-bold text-gray-800 mb-2">
-            {req.title}
-          </h2>
+          {req.priority}
+        </span>
+      </p>
 
-          <p className="text-gray-600 mb-4">{req.issue}</p>
+      {/* Status */}
+      <p className="mb-2">
+        Status:{" "}
+        <span
+          className={`font-semibold ${
+            req.status === "completed"
+              ? "text-green-600"
+              : req.status === "in-progress"
+              ? "text-yellow-600"
+              : "text-gray-500"
+          }`}
+        >
+          {req.status}
+        </span>
+      </p>
 
-          <p className="text-sm text-blue-600 mb-2 font-medium">
-            🏠 Room: {req.room?.roomNumber || "N/A"}
-          </p>
+      {/* Deleted Message */}
+      {req.isDeleted && (
+        <p className="text-red-600 font-semibold mt-2">
+          ❌ This request was deleted
+        </p>
+      )}
 
-          {/* Priority */}
-          <p className="mb-2">
-            Priority:{" "}
-            <span
-              className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                req.priority === "high"
-                  ? "bg-red-100 text-red-600"
-                  : req.priority === "medium"
-                  ? "bg-yellow-100 text-yellow-700"
-                  : "bg-green-100 text-green-600"
-              }`}
-            >
-              {req.priority}
-            </span>
-          </p>
+      <p className="mb-4 text-sm text-gray-500">
+        Assigned To: {req.assignedTo?.name || "Not Assigned"}
+      </p>
 
-          {/* Status */}
-          <p className="mb-2">
-            Status:{" "}
-            <span
-              className={`font-semibold ${
-                req.status === "completed"
-                  ? "text-green-600"
-                  : req.status === "in-progress"
-                  ? "text-yellow-600"
-                  : "text-gray-500"
-              }`}
-            >
-              {req.status}
-            </span>
-          </p>
+      {/* Admin / Staff */}
+      {(role === "admin" || role === "staff") && (
+        <>
+          {/* Assign Staff */}
+          {role === "admin" &&
+            req.status !== "completed" &&
+            !req.isDeleted && (
+              <div className="mb-3">
+                <select
+                  onChange={(e) => setSelectedStaff(e.target.value)}
+                  className="border p-2 rounded-lg w-full mb-2"
+                >
+                  <option>Select Staff</option>
 
-          <p className="mb-4 text-sm text-gray-500">
-            Assigned To: {req.assignedTo?.name || "Not Assigned"}
-          </p>
+                  {users
+                    .filter((u) => u.role === "staff")
+                    .map((u) => (
+                      <option key={u._id} value={u._id}>
+                        {u.name}
+                      </option>
+                    ))}
+                </select>
 
-          {/* Admin / Staff */}
-          {(role === "admin" || role === "staff") && (
+                <button
+                  onClick={() => assignTask(req._id)}
+                  className="bg-blue-500 text-white px-4 py-2 rounded-lg w-full"
+                >
+                  Assign Staff
+                </button>
+              </div>
+            )}
+
+          {/* Hide Actions after Completed or Deleted */}
+          {req.status !== "completed" && !req.isDeleted && (
             <>
-              {role === "admin" && (
-                <div className="mb-3">
-                  <select
-                    onChange={(e) => setSelectedStaff(e.target.value)}
-                    className="border p-2 rounded-lg w-full mb-2"
-                  >
-                    <option>Select Staff</option>
-
-                    {users
-                      .filter((u) => u.role === "staff")
-                      .map((u) => (
-                        <option key={u._id} value={u._id}>
-                          {u.name}
-                        </option>
-                      ))}
-                  </select>
-
-                  <button
-                    onClick={() => assignTask(req._id)}
-                    className="bg-blue-500 text-white px-4 py-2 rounded-lg w-full"
-                  >
-                    Assign Staff
-                  </button>
-                </div>
-              )}
-
               <div className="grid grid-cols-2 gap-2 mb-2">
                 <button
-                  onClick={() => updateStatus(req._id, "in-progress")}
+                  onClick={() =>
+                    updateStatus(req._id, "in-progress")
+                  }
                   className="bg-yellow-500 text-white py-2 rounded-lg"
                 >
                   In Progress
                 </button>
 
                 <button
-                  onClick={() => updateStatus(req._id, "completed")}
+                  onClick={() => {
+                    if (!req.assignedTo) {
+                      return toast.error(
+                        "Assign staff before marking completed"
+                      );
+                    }
+
+                    updateStatus(req._id, "completed");
+                  }}
                   className="bg-green-500 text-white py-2 rounded-lg"
                 >
                   Completed
@@ -373,39 +396,41 @@ const updateRequest = async () => {
                 onClick={() => deleteRequest(req._id)}
                 className="bg-red-500 text-white py-2 rounded-lg w-full"
               >
-                Delete
+                Mark Deleted
               </button>
             </>
           )}
+        </>
+      )}
 
-          {/* Resident Controls */}
-          {role === "resident" && (
-            <div className="grid grid-cols-2 gap-2">
-              {req.status === "pending" && (
-                <button
-                  onClick={() => {
-                    setEditId(req._id);
-                    setTitle(req.title);
-                    setIssue(req.issue);
-                    setPriority(req.priority);
-                  }}
-                  className="bg-blue-500 text-white py-2 rounded-lg"
-                >
-                  Edit
-                </button>
-              )}
-
-              <button
-                onClick={() => deleteRequest(req._id)}
-                className="bg-red-500 text-white py-2 rounded-lg"
-              >
-                Delete
-              </button>
-            </div>
+      {/* Resident Controls */}
+      {role === "resident" && !req.isDeleted && (
+        <div className="grid grid-cols-2 gap-2">
+          {req.status === "pending" && (
+            <button
+              onClick={() => {
+                setEditId(req._id);
+                setTitle(req.title);
+                setIssue(req.issue);
+                setPriority(req.priority);
+              }}
+              className="bg-blue-500 text-white py-2 rounded-lg"
+            >
+              Edit
+            </button>
           )}
+
+          <button
+            onClick={() => deleteRequest(req._id)}
+            className="bg-red-500 text-white py-2 rounded-lg"
+          >
+            Mark Deleted
+          </button>
         </div>
-      ))}
+      )}
     </div>
-  </Layout>
-);
+  ))}
+</div>
+</Layout>
+  );
 }
