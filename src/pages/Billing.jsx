@@ -12,12 +12,15 @@ export default function Billing() {
 
   //razor pay
 
-   const handlePayment = async (billId) => {
+  const handlePayment = async (billId, amount) => {
   try {
-    console.log("STEP1:Clicked", billId);
 
-    const { data } = await API.post(`/bills/${billId}/create-order`);
-    console.log("STEP2:Order response", data);
+    const { data } = await API.post(
+      `/bills/${billId}/create-order`,
+      {
+        amount
+      }
+    );
 
     const options = {
       key: data.key,
@@ -28,14 +31,15 @@ export default function Billing() {
       order_id: data.orderId,
 
       handler: async function (response) {
-        console.log("STEP 3:Payment success", response);
 
         await API.post("/bills/verify-payment", {
           ...response,
-          billId
+          billId,
+          amount
         });
 
-        alert("Payment Successful ");
+        toast.success("Payment Successful 🎉");
+
         fetchData();
       },
 
@@ -44,14 +48,12 @@ export default function Billing() {
       }
     };
 
-    console.log("STEP 4: Opening Razorpay");
-
     const rzp = new window.Razorpay(options);
     rzp.open();
 
   } catch (err) {
-    console.error(err);
-    alert("Payment failed ");
+    console.log(err);
+    toast.error("Payment failed ");
   }
 };
 
@@ -312,11 +314,80 @@ export default function Billing() {
               ))}
             </select>
 
-            <input placeholder="Rent" value={rent} onChange={(e) => setRent(Number(e.target.value))} className="border p-3 rounded" />
-            <input placeholder="Utilities" value={utilities} onChange={(e) => setUtilities(e.target.value)} className="border p-3 rounded" />
-            <input placeholder="Extra Charges" value={extraCharges} onChange={(e) => setExtraCharges(e.target.value)} className="border p-3 rounded" />
-            <input placeholder="Discount" value={discount} onChange={(e) => setDiscount(e.target.value)} className="border p-3 rounded" />
-            <input placeholder="Late Fee" value={lateFee} onChange={(e) => setLateFee(e.target.value)} className="border p-3 rounded" />
+            <input
+  type="number"
+  min="0"
+  step="1"
+  placeholder="Rent"
+  value={rent}
+  onChange={(e) => setRent(e.target.value)}
+  onKeyDown={(e) => {
+    if (["e", "E", "+", "-"].includes(e.key)) {
+      e.preventDefault();
+    }
+  }}
+  className="border p-3 rounded-lg"
+/>
+
+<input
+  type="number"
+  min="0"
+  step="1"
+  placeholder="Utilities"
+  value={utilities}
+  onChange={(e) => setUtilities(e.target.value)}
+  onKeyDown={(e) => {
+    if (["e", "E", "+", "-"].includes(e.key)) {
+      e.preventDefault();
+    }
+  }}
+  className="border p-3 rounded-lg"
+/>
+
+<input
+  type="number"
+  min="0"
+  step="1"
+  placeholder="Extra Charges"
+  value={extraCharges}
+  onChange={(e) => setExtraCharges(e.target.value)}
+  onKeyDown={(e) => {
+    if (["e", "E", "+", "-"].includes(e.key)) {
+      e.preventDefault();
+    }
+  }}
+  className="border p-3 rounded-lg"
+/>
+
+<input
+  type="number"
+  min="0"
+  step="1"
+  placeholder="Discount"
+  value={discount}
+  onChange={(e) => setDiscount(e.target.value)}
+  onKeyDown={(e) => {
+    if (["e", "E", "+", "-"].includes(e.key)) {
+      e.preventDefault();
+    }
+  }}
+  className="border p-3 rounded-lg"
+/>
+
+<input
+  type="number"
+  min="0"
+  step="1"
+  placeholder="Late Fee"
+  value={lateFee}
+  onChange={(e) => setLateFee(e.target.value)}
+  onKeyDown={(e) => {
+    if (["e", "E", "+", "-"].includes(e.key)) {
+      e.preventDefault();
+    }
+  }}
+  className="border p-3 rounded-lg"
+ />
           </div>
 
           <button
@@ -382,54 +453,92 @@ export default function Billing() {
     <p className="text-red-500 font-bold">
       Remaining: ₹{bill.remainingAmount}
     </p>
+
+    {/* Payment History */}
+  {bill.paymentHistory?.length > 0 && (
+    <div className="mt-4 border-t pt-3">
+      <h3 className="font-semibold text-gray-700 mb-2">
+        Payment History
+      </h3>
+
+      <div className="space-y-2">
+        {bill.paymentHistory.map((payment, index) => (
+          <div
+            key={index}
+            className="bg-gray-100 rounded-lg p-2 text-sm"
+          >
+            <p>
+              💰 Amount: ₹{payment.amount}
+            </p>
+
+            <p>
+              📅 Date:
+              {new Date(payment.date).toLocaleString()}
+            </p>
+
+            <p className="truncate">
+              🧾 Transaction:
+              {payment.transactionId}
+            </p>
+          </div>
+        ))}
+      </div>
+    </div>
+  )}
+
   </div>
 
   {/* Payment Buttons */}
-  {role === "resident" && bill.status !== "paid" && (
-    
+  {/* Payment Buttons */}
+{role === "resident" && bill.status !== "paid" && (
+  <div className="grid grid-cols-1 gap-2 mt-3">
 
-      <div className="grid grid-cols-1 gap-2 mt-3">
-        
-        {/* Pay Full */}
-<button
-  onClick={() => payBill(bill._id)}
-  className="bg-blue-500 text-white py-2 rounded-lg w-full mb-3"
->
-  Pay Full
-</button>
+    {/* Pay Full */}
+    <button
+      onClick={() => handlePayment(bill._id,bill.remainingAmount)}
+      className="bg-blue-500 text-white py-2 rounded-lg w-full mb-3"
+    >
+      Pay Full
+    </button>
 
-{/* Partial Payment Section */}
-<div className="space-y-2">
-  <input
-  type="number"
-  placeholder="Enter partial amount"
-  value={amounts[bill._id] || ""}
-  onChange={(e) =>
-    setAmounts({
-      ...amounts,
-      [bill._id]: e.target.value,
-    })
-  }
-  className="border p-2 rounded-lg w-full"
-/>
+    {/* Partial Payment */}
+    <div className="space-y-2">
+      <input
+        type="number"
+        min="1"
+        placeholder="Enter partial amount"
+        value={amounts[bill._id] || ""}
+        onChange={(e) =>
+          setAmounts({
+            ...amounts,
+            [bill._id]: e.target.value,
+          })
+        }
+        className="border p-2 rounded-lg w-full"
+      />
 
-  <button
-    onClick={() => payInstallment(bill._id)}
-    className="bg-green-500 text-white py-2 rounded-lg w-full"
-  >
-    Pay Partial
-  </button>
-</div>
+      <button
+        onClick={() => {
+          const amount = Number(amounts[bill._id]);
 
-{/* Online Payment */}
-<button
-  onClick={() => handlePayment(bill._id)}
-  className="bg-purple-500 text-white py-2 rounded-lg w-full mt-3"
->
-  Pay Online
-</button>
-</div>
-  )}
+          if (!amount || amount <= 0) {
+            return toast.error("Enter valid amount");
+          }
+
+          if (amount > bill.remainingAmount) {
+            return toast.error("Amount exceeds remaining balance");
+          }
+
+          handlePayment(bill._id, amount);
+        }}
+        className="bg-green-500 text-white py-2 rounded-lg w-full"
+      >
+        Pay Partial
+      </button>
+    </div>
+
+  </div>
+)}
 
   {role === "admin" && (
     <button
