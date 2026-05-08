@@ -92,14 +92,28 @@ const storedUser=JSON.parse(localStorage.getItem("user"));
 
    const deleteResident = async (id) => {
   try {
-    await API.delete(`/users/${id}`);
 
-    toast.success("Resident deleted");
+    const res = await API.delete(`/users/${id}`);
 
-    fetchResidents(); // or fetchData()
+    if (res.status === 200) {
+
+      setResidents((prev) =>
+        prev.filter((r) => r._id !== id)
+      );
+
+      toast.success("Resident deleted");
+
+      return;
+    }
 
   } catch (err) {
-    toast.error(err.response?.data?.message || "Delete failed");
+
+    console.log(err);
+
+    toast.error(
+      err.response?.data?.message ||
+      "Delete failed"
+    );
   }
 };
 
