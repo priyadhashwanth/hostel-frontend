@@ -340,7 +340,9 @@ export default function Rooms() {
                 className="border p-3 rounded-lg"
               >
                 <option>Select User</option>
-                {users.map((u) => (
+                {users
+                .filter((u)=>!u.room)
+                .map((u) => (
                   <option key={u._id} value={u._id}>
                     {u.name}
                   </option>
