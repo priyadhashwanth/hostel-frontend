@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "https://hostel-backend-sxqd.onrender.com/api"
+  baseURL: "hostel-backend-production-70c4.up.railway.app/api"
   
 });
 
